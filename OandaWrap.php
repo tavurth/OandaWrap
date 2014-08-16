@@ -93,7 +93,7 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 							return FALSE;
 						}
 						//Set our current account
-						self::$account = $account[0];
+						self::$account = $accounts[0];
 					}
 					return TRUE;
 				case "Demo":
