@@ -1,0 +1,1070 @@
+//////////////////////////////////////////////////////////////////////////////////
+//
+//	OANDAWRAP 
+//		API WRAPPER
+//
+//	Written by William Whitty July 2014
+//	Questions, comments or bug reports?
+//
+//	 will.whitty.arbeit@gmail.com
+//
+//	I am in no way responsible for any of your losses incurred
+//	while trading forex. 
+//	I take my trades off the table if they become losers.
+//
+//	I have relied heavily on Oanda documentation for creating
+//	this reference manual, please don't sue me for making life easier!
+//
+//	Best,
+//
+//	 Tavurth
+//
+//////////////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////////////
+//
+//	FAST INDEX
+//
+//////////////////////////////////////////////////////////////////////////////////
+
+//	SETUP
+//////////////////////////////////////////////////////////////////////////////////
+setup($server=Optional, $apiKey=Optional, $userName=Optional, $accountName=Optional)
+
+//	DIRECT NETWORK ACCESS
+//////////////////////////////////////////////////////////////////////////////////
+stream($url, $callback
+
+//	ACCOUNT WRAPPERS
+//////////////////////////////////////////////////////////////////////////////////
+accounts($username)
+account($accountId)
+account_named($accountName, $uName)
+account_id($accountName, $uName)
+
+//	INSTRUMENT WRAPPERS
+//////////////////////////////////////////////////////////////////////////////////
+instruments()
+instrument_name($home, $away)
+instrument($pair)
+instrument_split($pair)
+instrument_pip($pair)
+
+//	NAV (NET ACCOUNT VALUE) WRAPPERS
+//////////////////////////////////////////////////////////////////////////////////
+convert($pair, $amount, $homeIndex=0)
+percent_nav ($pair, $percent, $leverage=1)
+
+//	TRANSACTION WRAPPERS
+//////////////////////////////////////////////////////////////////////////////////
+transaction_all($number=50, $pair="all")
+transaction_types($types, $number=50, $pair="all")
+transaction_get($transactionId)
+
+//	ORDER WRAPPERS
+//////////////////////////////////////////////////////////////////////////////////
+order_pair($pair, $number=50)
+order($orderId)
+order_open($side, $units, $pair, $type, $rest = Optional)
+order_open_extended($side, $units, $pair, $type, $price, $expiry, $rest = Optional)
+order_modify($orderId, $options)
+order_close($orderId)
+order_close_all($pair)
+
+//	TRADE WRAPPERS
+//////////////////////////////////////////////////////////////////////////////////
+trade_pair($pair, $number=50)
+trade($tradeId)
+trade_modify($tradeId, $options)
+trade_close($tradeId)
+trade_close_all($pair)
+trade_modify_all($pair, $options)
+
+//	POSITION WRAPPERS
+//////////////////////////////////////////////////////////////////////////////////
+position_all()
+position($pair)
+position_close($positionId)
+position_close_pair($pair)
+
+//	BIDIRECTIONAL WRAPPERS
+//////////////////////////////////////////////////////////////////////////////////
+market($side, $units, $pair, $rest = Optional)
+limit($side, $units, $pair, $price, $expiry, $rest = Optional)
+stop($side, $units, $pair, $price, $rest = Optional)
+mit($side, $units, $pair, $price, $expiry, $rest = Optional)
+
+//	BUYING WRAPPERS
+//////////////////////////////////////////////////////////////////////////////////
+buy_market($units, $pair, $rest = Optional)
+buy_limit($units, $pair, $price, $expiry, $rest = Optional)
+buy_stop($units, $pair, $price, $rest = Optional)
+buy_mit($units, $pair, $price, $expiry, $rest = Optional)
+
+//	SELLING WRAPPERS
+//////////////////////////////////////////////////////////////////////////////////
+sell_market($units, $pair, $rest = Optional)
+sell_limit($units, $pair, $price, $rest = Optional)
+sell_stop($units, $pair, $price, $rest = Optional)
+sell_mit($units, $pair, $price, $expiry, $rest = Optional)
+
+//	EXPIRY WRAPPERS
+//////////////////////////////////////////////////////////////////////////////////
+expiry($seconds=5)
+expiry_min($minutes=5)
+expiry_hour($hours=1)
+
+//	MODIFICATION WRAPPERS
+//////////////////////////////////////////////////////////////////////////////////
+stop_set($type, $id, $price)
+tp_set($type, $id, $price)
+trailing_stop_set($type, $id, $distance)
+expiry_set($id, $time)
+units_set($id, $units)
+
+//	PRICE WRAPPERS
+//////////////////////////////////////////////////////////////////////////////////
+prices($pairs)
+price($pair)
+candles($pair, $gran, $number)
+
+//////////////////////////////////////////////////////////////////////////////////
+//
+//
+//
+//	FULL REFERENCE
+//
+//
+//
+//////////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////////
+//
+//	VARIABLE DECLARATION AND HELPER FUNCTIONS
+//
+//////////////////////////////////////////////////////////////////////////////////
+
+Function: setup($server=Optional, $apiKey=Optional, $userName=Optional, $accountName=Optional)
+--------------------------------------------
+Usage:	 Setup our enviornment variables
+		 Must be called before using any other OandaWrap function
+Example:
+		OandaWrap::setup();	//Sandbox account	
+		OandaWrap::setup("Demo", FALSE, "DemoAccount");	//Demo account
+		OandaWrap::setup("Live", "wijdfoiwehoiwt=wdnivhoweufh", "LiveAccount");	//Live account
+
+
+//////////////////////////////////////////////////////////////////////////////////
+//
+//	DIRECT NETWORK ACCESS
+//
+//////////////////////////////////////////////////////////////////////////////////
+
+Function: stream($url, $callback)
+--------------------------------------------
+Usage:	 Open a stream to Oanda
+Example:	
+		$callback = function ($ch, $str) {
+						echo "$str\n";
+						return strlen($str);//return the exact length or stream is cancelled
+					};
+		OandaWrap::stream("https://stream-fxtrade.oanda.com/v1/prices?accountId=$account&instruments=EUR_USD", $callback);
+		
+		$callback function will be called for each new tick.
+		
+		{"tick":{"instrument":"AUD_CAD","time":"2014-01-30T20:47:08.066398Z","bid":0.98114,"ask":0.98139}}
+		{"tick":{"instrument":"AUD_CHF","time":"2014-01-30T20:47:08.053811Z","bid":0.79353,"ask":0.79382}}
+		{"tick":{"instrument":"AUD_CHF","time":"2014-01-30T20:47:11.493511Z","bid":0.79355,"ask":0.79387}}
+		{"heartbeat":{"time":"2014-01-30T20:47:11.543511Z"}}
+		{"tick":{"instrument":"AUD_CHF","time":"2014-01-30T20:47:11.855887Z","bid":0.79357,"ask":0.79390}}
+		{"tick":{"instrument":"AUD_CAD","time":"2014-01-30T20:47:14.066398Z","bid":0.98112,"ask":0.98138}}
+
+
+
+//////////////////////////////////////////////////////////////////////////////////
+//
+//	ACCOUNT WRAPPERS
+//
+//////////////////////////////////////////////////////////////////////////////////
+
+Function: accounts($username)
+--------------------------------------------
+Usage:	 Return an array of the accounts for $username 
+Example:	
+		OandaWrap::accounts("JohnBoss");
+		{
+		  "accounts": [
+		      {
+		        "accountId" : 8954947,
+		        "accountName" : "Primary",
+		        "accountCurrency" : "USD",
+		        "marginRate" : 0.05
+		      },
+		      {
+		        "accountId" : 8954950,
+		        "accountName" : "LTEquity",
+		        "accountCurrency" : "AUD",
+		        "marginRate" : 0.02
+		      }
+		  ]
+		}
+
+Function: account($accountId)
+--------------------------------------------
+Usage:	 Return the information for $accountId
+Example:
+		OandaWrap::("8954947");
+	      {
+	        "accountId" : 8954947,
+	        "accountName" : "Primary",
+	        "accountCurrency" : "USD",
+	        "marginRate" : 0.05
+	      }
+
+
+Function: account_named($accountName, $uName)
+--------------------------------------------
+Usage:	 Return the information for $accountName
+Example:	
+		OandaWrap::("Primary", "JohnBoss");
+	      {
+	        "accountId" : 8954947,
+	        "accountName" : "Primary",
+	        "accountCurrency" : "USD",
+	        "marginRate" : 0.05
+	      }
+
+
+Function: account_id($accountName, $uName)
+--------------------------------------------
+Usage:	 Return the accountId for $accountName
+Example:	
+		OandaWrap::("Primary", "JohnBoss");
+	      int(8954947)
+
+//////////////////////////////////////////////////////////////////////////////////
+//
+//	INSTRUMENT WRAPPERS
+//
+//////////////////////////////////////////////////////////////////////////////////
+
+Function: instruments()
+--------------------------------------------
+Usage:	 Return a list of tradeable instruments
+Example:	
+		OandaWrap::instruments()
+		{
+		  "instruments" : [
+		    {
+		      "instrument" : "AUD_CAD",
+		      "displayName" : "AUD\/CAD",
+		      "pip" : "0.0001",
+		      "maxTradeUnits" : 10000000
+		    },
+		    {
+		      "instrument" : "AUD_CHF",
+		      "displayName" : "AUD\/CHF",
+		      "pip" : "0.0001",
+		      "maxTradeUnits" : 10000000
+		    }
+		  ]
+		
+		}
+
+Function: instrument_name($home, $away)
+--------------------------------------------
+Usage:	 Return a proper instrument name for two currencies
+Example:	
+		OandaWrap::instrument_name("EUR", "CAD");
+		Returns "EUR_CAD";
+
+
+Function: instrument($pair)
+--------------------------------------------
+Usage:	 Return instrument for named $pair
+Example:	
+		OandaWrap::instrument("AUD_CAD");
+	    {
+	      "instrument" : "AUD_CAD",
+	      "displayName" : "AUD\/CAD",
+	      "pip" : "0.0001",
+	      "maxTradeUnits" : 10000000
+	    }
+
+Function: instrument_split($pair)
+--------------------------------------------
+Usage:	 Split an instrument into two currencies and return an array of them both
+Example:	
+		OandaWrap::instrument_split("EUR_CAD");
+		Returns array("EUR", "CAD");
+
+
+Function: instrument_pip($pair)
+--------------------------------------------
+Usage:	 Return a floating point number declaring the pip size of $pair
+Example:	
+		OandaWrap::instrument_pip("EUR_JPY");
+		Returns: 0.01;
+		OandaWrap::instrument_pip("EUR_USD");
+		Returns: 0.0001;
+
+
+//////////////////////////////////////////////////////////////////////////////////
+//
+//	NAV (NET ACCOUNT VALUE) WRAPPERS
+//
+//////////////////////////////////////////////////////////////////////////////////
+
+convert($pair, $amount, $homeIndex=0)
+$instrument = self::instrument_name($pair[0], $pair[1]);
+
+Function: percent_nav ($pair, $percent, $leverage=1)
+--------------------------------------------
+Usage:	 Return the value of a percentage of the NAV (Net account value)
+Example:	
+		OandaWrap::percent_nav("EUR_JPY", 20, 50);
+		Returns 20% of your maximum leverage for pair EUR_JPY e.g. 605,517
+
+
+//////////////////////////////////////////////////////////////////////////////////
+//
+//	TRANSACTION WRAPPERS
+//
+//////////////////////////////////////////////////////////////////////////////////
+
+please see:
+	http://developer.oanda.com/docs/v1/transactions/#get-transaction-history
+
+For details pertaining to transaction return types
+
+Function: transaction_all($number=50, $pair="all")
+--------------------------------------------
+Usage:	 Return an object with all transactions (max 50)
+Example:	
+		OandaWrap::transaction_all(50, "EUR_USD");
+
+
+Function: transaction_types($types, $number=50, $pair="all")
+--------------------------------------------
+Usage:	 Return an array with all transactions conforming to one of {$types}
+Example:	
+		OandaWrap::transaction_types("MARKET_CREATED", 50, "EUR_JPY);
+
+Function: transaction_get($transactionId)
+--------------------------------------------
+Usage:	 Get information on a single transaction
+Example:	
+		OandaWrap::transaction_get(05151551);
+
+
+//////////////////////////////////////////////////////////////////////////////////
+//
+//	ORDER WRAPPERS
+//
+//////////////////////////////////////////////////////////////////////////////////
+
+Function: order_pair($pair, $number=50)
+--------------------------------------------
+Usage:	 Get an object with all the orders for $pair
+Example:	
+		OandaWrap::order_pair("EUR_USD", 2);
+		{
+		  "orders" : [
+		    {
+		      "id" : 175427639,
+		      "instrument" : "EUR_USD",
+		      "units" : 20,
+		      "side" : "buy",
+		      "type" : "marketIfTouched",
+		      "time" : "2014-02-11T16:22:07Z",
+		      "price" : 1,
+		      "takeProfit" : 0,
+		      "stopLoss" : 0,
+		      "expiry" : "2014-02-15T16:22:07Z",
+		      "upperBound" : 0,
+		      "lowerBound" : 0,
+		      "trailingStop" : 0
+		    },
+		    {
+		      "id" : 175427637,
+		      "instrument" : "EUR_USD",
+		      "units" : 10,
+		      "side" : "sell",
+		      "type" : "marketIfTouched",
+		      "time" : "2014-02-11T16:22:07Z",
+		      "price" : 1,
+		      "takeProfit" : 0,
+		      "stopLoss" : 0,
+		      "expiry" : "2014-02-12T16:22:07Z",
+		      "upperBound" : 0,
+		      "lowerBound" : 0,
+		      "trailingStop" : 0
+		    }
+		  ]
+		}
+
+Function: order($orderId)
+--------------------------------------------
+Usage:	 Return an object with the information about $orderId
+Example:	
+		OandaWrap::order(250450);
+		Returns same as OandaWrap::order_open();
+
+
+Function: order_open($side, $units, $pair, $type, $rest = Optional)
+--------------------------------------------
+Usage:	 Open a new order
+Example:	
+		$type can order ‘limit’, ‘stop’, ‘marketIfTouched’ or ‘market’. 
+		OandaWrap::order_open("buy", 2, "EUR_USD", "market");
+		{
+		  "instrument" : "EUR_USD",
+		  "time" : "2013-12-06T20:36:06Z", // Time that order was executed
+		  "price" : 1.37041,               // Trigger price of the order
+		  "tradeOpened" : {
+		    "id" : 175517237,              // Order id
+		    "units" : 2,                   // Number of units
+		    "side" : "sell",               // Direction of the order
+		    "takeProfit" : 0,              // The take-profit associated with the order, if any
+		    "stopLoss" : 0,                // The stop-loss associated with the order, if any
+		    "trailingStop" : 0             // The trailing stop associated with the order, if any
+		  },
+		  "tradesClosed" : [],
+		  "tradeReduced" : {}
+		}
+
+
+Function: order_open_extended($side, $units, $pair, $type, $price, $expiry, $rest = Optional)
+--------------------------------------------
+Usage:	 Open a new order, expanded for simplified limit order processing
+Example:
+		OandaWrap::order_open_extended(open("buy", 2, "EUR_USD", "limit", 1.0810, OandaWrap::expiry(7125));
+		
+
+Function: order_modify($orderId, $options)
+--------------------------------------------
+Usage:	 Modify the parameters of an order
+Example:	
+		OandaWrap::order_modify(51510, array("takeProfit" => 1.50050));
+
+
+Function: order_close($orderId)
+--------------------------------------------
+Usage:	 Close an order by Id
+Example:	
+		OandaWrap::order_close(54332);
+		{
+		  "id" : 54332,                   // The ID of the close order transaction
+		  "instrument" : "EUR_USD",       // The symbol of the instrument of the order
+		  "units" : 2,
+		  "side" : "sell",
+		  "price" : 1.30601,              // The price at which the order executed
+		  "time" : "2013-01-01T00:00:00Z" // The time at which the order executed
+		}
+
+
+Function: order_close_all($pair)
+--------------------------------------------
+Usage:	 Close all orders in $pair
+Example:	
+		OandaWrap::order_close_all("EUR_USD");
+		Closes all orders for EUR_USD
+
+
+//////////////////////////////////////////////////////////////////////////////////
+//
+//	TRADE WRAPPERS
+//
+//////////////////////////////////////////////////////////////////////////////////
+
+Function: trade_pair($pair, $number=50)
+--------------------------------------------
+Usage:	 Return an object with all the trades on $pair
+Example:	
+		OandaWrap::trade_pair("EUR_USD", 2);
+		{
+		  "trades" : [
+		    {
+		            "id" : 175427743,
+		            "units" : 2,
+		            "side" : "sell",
+		            "instrument" : "EUR_USD",
+		            "time" : "2014-02-13T17:47:57Z",
+		            "price" : 1.36687,
+		            "takeProfit" : 0,
+		            "stopLoss" : 0,
+		            "trailingStop" : 0
+		            "trailingAmount" : 0
+		    },
+		    {
+		            "id" : 175427742,
+		            "units" : 2,
+		            "side" : "sell",
+		            "instrument" : "EUR_USD",
+		            "time" : "2014-02-13T17:47:56Z",
+		            "price" : 1.36687,
+		            "takeProfit" : 0,
+		            "stopLoss" : 0,
+		            "trailingStop" : 0,
+		            "trailingAmount" : 0,
+		    }
+		  ]
+		}
+
+Function: trade($tradeId)
+--------------------------------------------
+Usage:	 Return an object containing information on a single pair
+Example:	
+		OandaWrap::trade(43211);
+		{
+		  "id" : 43211,                          // The ID of the trade
+		  "units" : 5,                           // The number of units in the trade
+		  "side" : "buy",                        // The direction of the trade
+		  "instrument" : "EUR_USD",              // The symbol of the instrument of the trade
+		  "time" : "2013-07-03T14:30:38Z",       // The time of the trade (in RFC3339 format)
+		  "price" : 1.45123,                     // The price the trade was executed at
+		  "takeProfit" : 1.7,                    // The take-profit associated with the trade, if any
+		  "stopLoss" : 1.4,                      // The stop-loss associated with the trade, if any
+		  "trailingStop" : 50                    // The trailing stop associated with the trade, if any
+		  "trailingAmount" : 1.44613             // The trailing amount associated with the trade, if any.
+		                                            Returns -1 if our trailing amount server is unavailable
+		}
+
+Function: trade_modify($tradeId, $options)
+--------------------------------------------
+Usage:	 Modify attributes of a trade referenced by $tradeId
+Example:	
+		OandaWrap::trade_modify(60400, array("stopLoss" => 1.25105));
+		{
+		  "id" : 60400,                          // The ID of the trade
+		  "units" : 5,                           // The number of units in the trade
+		  "side" : "buy",                        // The direction of the trade
+		  "instrument" : "EUR_USD",              // The symbol of the instrument of the trade
+		  "time" : "2013-07-03T14:30:38Z",       // The time of the trade (in RFC3339 format)
+		  "price" : 1.45123,                     // The price the trade was executed at
+		  "takeProfit" : 1.7,                    // The take-profit associated with the trade, if any
+		  "stopLoss" : 1.25105,                  // The stop-loss associated with the trade, if any
+		  "trailingStop" : 50                    // The trailing stop associated with the trade, if any
+		  "trailingAmount" : 1.44613             // The trailing amount associated with the trade, if any.
+		                                            Returns -1 if our trailing amount server is unavailable
+		}
+
+Function: trade_close($tradeId)
+--------------------------------------------
+Usage:	 Close trade referenced by $tradeId
+Example:	
+		OandaWrap::trade_close(54332);
+		{
+		  "id" : 54332,                   // The ID of the close trade transaction
+		  "price" : 1.30601,              // The price the trade was closed at
+		  "instrument" : "EUR_USD",       // The symbol of the instrument of the trade
+		  "profit" :  0.005,              // The realized profit of the trade in units of base currency
+		  "side" : "sell"                 // The direction the trade was in
+		  "time" : "2013-07-12T16:09:15Z" // The time at which the trade was closed (in RFC3339 format)
+		}
+
+Function: trade_close_all($pair)
+--------------------------------------------
+Usage:	 Close all trades on $pair
+Example:	
+		OandaWrap::trade_close_all("EUR_JPY");
+		Closes all trades and returns an array of json objects similar to trade_close
+
+
+Function: trade_modify_all($pair, $options)
+--------------------------------------------
+Usage:	 Modify all trades on $pair
+Example:	
+		OandaWrap::trade_modify_all("EUR_USD", array("stopLoss" => 1.15150));
+		Set the stop loss of all trades on EUR_USD to 1.15150.
+
+
+//////////////////////////////////////////////////////////////////////////////////
+//
+//	POSITION WRAPPERS
+//
+//////////////////////////////////////////////////////////////////////////////////
+
+Function: position_all()
+--------------------------------------------
+Usage:	 Return an object with all the positions for the account
+Example:	
+		OandaWrap::position_all();
+		{
+		  "positions" : [
+		    {
+		      "instrument" : "EUR_USD",
+		      "units" : 4741,
+		      "side" : "buy",
+		      "avgPrice" : 1.3626
+		    },
+		    {
+		      "instrument" : "USD_CAD",
+		      "units" : 200000,
+		      "side" : "sell",
+		      "avgPrice" : 1.11563
+		    },
+		    {
+		      "instrument" : "USD_JPY",
+		      "units" : 200000,
+		      "side" : "buy",
+		      "avgPrice" : 102.455
+		    }
+		  ]
+		}
+		
+Function: position($pair)
+--------------------------------------------
+Usage:	 Return an object with the information for a single $pairs position
+Example:	
+		OandaWrap::position("EUR_JPY");
+		{
+		  "side" : "sell",
+		  "instrument" : "EUR_USD",
+		  "units" : 500000,
+		  "avgPrice" : 1.3093
+		}
+
+Function: position_close($positionId)
+--------------------------------------------
+Usage:	 Close the position for a pair using $position Id
+Example:	
+		OandaWrap::position_close(520001);
+		Close position by ID
+
+
+Function: position_close_pair($pair)
+--------------------------------------------
+Usage:	 Close the position for $pair
+Example:	
+		OandaWrap::position_close_pair("EUR_USD");
+		Closes all trades for "EUR_USD"
+
+
+//////////////////////////////////////////////////////////////////////////////////
+//
+//	BIDIRECTIONAL WRAPPERS
+//
+//////////////////////////////////////////////////////////////////////////////////
+
+Function: market($side, $units, $pair, $rest = Optional)
+--------------------------------------------
+Usage:	 Open a new @ market order
+Example:	
+		OandaWrap::market("buy", 500000, "EUR_USD");
+		//Same as buy_market or sell_market except that here we can also declare a side
+
+
+Function: limit($side, $units, $pair, $price, $expiry, $rest = Optional)
+--------------------------------------------
+Usage:	 Open a new limit order
+Example:		
+		OandaWrap::limit("buy", 500000, "EUR_USD", 1.026, OandaWrap::expiry(3600));
+		//Same as buy_limit or sell_limit except that here we can also declare a side
+
+
+Function: stop($side, $units, $pair, $price, $rest = Optional)
+--------------------------------------------
+Usage:	 Open a new stop order
+Example:		
+		OandaWrap::stop("buy", 500000, "EUR_USD", 1.026, OandaWrap::expiry(3600));
+		//Same as buy_stop or sell_stop except that here we can also declare a side
+
+
+Function: mit($side, $units, $pair, $price, $expiry, $rest = Optional)
+--------------------------------------------
+Usage:	 Open a new marketIfTouched order
+Example:	
+		OandaWrap::mit("buy", 500000, "EUR_USD", 1.026, OandaWrap::expiry(3600));
+		//Same as buy_mit or sell_mit except that here we can also declare a side
+
+
+//////////////////////////////////////////////////////////////////////////////////
+//
+//	BUYING WRAPPERS
+//
+//////////////////////////////////////////////////////////////////////////////////
+
+Function: buy_market($units, $pair, $rest = Optional)
+--------------------------------------------
+Usage:	 Buy @ market
+Example:	
+		OandaWrap::buy_market(500000, "EUR_USD");
+		{
+		  "instrument" : "EUR_USD",
+		  "time" : "2014-12-06T20:36:06Z", // Time that order was executed
+		  "price" : 1.37041,               // Trigger price of the order
+		  "tradeOpened" : {
+		    "id" : 175517237,              // Order id
+		    "units" : 500000,              // Number of units
+		    "side" : "buy",               // Direction of the order
+		    "takeProfit" : 0,              // The take-profit associated with the order, if any
+		    "stopLoss" : 0,                // The stop-loss associated with the order, if any
+		    "trailingStop" : 0             // The trailing stop associated with the order, if any
+		  },
+		  "tradesClosed" : [],
+		  "tradeReduced" : {}
+		}
+
+
+Function: buy_limit($units, $pair, $price, $expiry, $rest = Optional)
+--------------------------------------------
+Usage:	 Buy limit with expiry
+Example:	
+		OandaWrap::sell_limit(500000, "EUR_USD", 1.2, OandaWrap::expiry_min(60), array("stopLoss" => 1.1));
+		{		
+		  "instrument" : "EUR_USD",
+		  "time" : "2013-01-01T20:36:06Z",      // Time that order was executed
+		  "price" : 1.2,                        // Trigger price of the order
+		  "orderOpened" : {             
+		    "id" : 175517237,                   // Order id
+		    "units" : 500000,                   // Number of units
+		    "side" : "buy",                     // Direction of the order
+		    "takeProfit" : 0,                   // The take-profit associated with the order, if any
+		    "stopLoss" : 1.1,                   // The stop-loss associated with the order, if any
+		    "expiry" : "2013-02-01T00:00:00Z",  // The time the order expires (in RFC3339 format)
+		    "upperBound" : 0,                   // The maximum execution price associated with the order, if any
+		    "lowerBound" : 0,                   // The minimum execution price associated with the order, if any
+		    "trailingStop" : 0                  // The trailing stop associated with the order, if any
+		  }
+		}
+
+
+Function: buy_stop($units, $pair, $price, $rest = Optional)
+--------------------------------------------
+Usage:	 Buy stop with expiry
+Example:	
+		OandaWrap::buy_stop(500000, "EUR_USD", 1.2, OandaWrap::expiry_min(60), array("takeProfit" => 1.3));
+		{
+		  "instrument" : "EUR_USD",
+		  "time" : "2013-01-01T20:36:06Z",      // Time that order was executed
+		  "price" : 1.2,                        // Trigger price of the order
+		  "orderOpened" : {             
+		    "id" : 175517237,                   // Order id
+		    "units" : 500000,                   // Number of units
+		    "side" : "buy",                     // Direction of the order
+		    "takeProfit" : 1.3,                 // The take-profit associated with the order, if any
+		    "stopLoss" : 0,                     // The stop-loss associated with the order, if any
+		    "expiry" : "2013-02-01T00:00:00Z",  // The time the order expires (in RFC3339 format)
+		    "upperBound" : 0,                   // The maximum execution price associated with the order, if any
+		    "lowerBound" : 0,                   // The minimum execution price associated with the order, if any
+		    "trailingStop" : 0                  // The trailing stop associated with the order, if any
+		  }
+		}
+
+
+Function: buy_mit($units, $pair, $price, $expiry, $rest = Optional)
+--------------------------------------------
+Usage:	 Buy marketIfTouched with expiry
+Example:	
+
+		OandaWrap::buy_mit(500000, "EUR_USD", 1.2, OandaWrap::expiry_min(60), array("takeProfit" => 1.3));
+		{
+		
+		  "instrument" : "EUR_USD",
+		  "time" : "2013-01-01T20:36:06Z",      // Time that order was executed
+		  "price" : 1.2,                        // Trigger price of the order
+		  "orderOpened" : {             
+		    "id" : 175517237,                   // Order id
+		    "units" : 500000,                   // Number of units
+		    "side" : "buy",                     // Direction of the order
+		    "takeProfit" : 1.3,                 // The take-profit associated with the order, if any
+		    "stopLoss" : 0,                     // The stop-loss associated with the order, if any
+		    "expiry" : "2013-02-01T00:00:00Z",  // The time the order expires (in RFC3339 format)
+		    "upperBound" : 0,                   // The maximum execution price associated with the order, if any
+		    "lowerBound" : 0,                   // The minimum execution price associated with the order, if any
+		    "trailingStop" : 0                  // The trailing stop associated with the order, if any
+		  }
+		}
+
+
+//////////////////////////////////////////////////////////////////////////////////
+//
+//	SELLING WRAPPERS
+//
+//////////////////////////////////////////////////////////////////////////////////
+
+Function: sell_market($units, $pair, $rest = Optional)
+--------------------------------------------
+Usage:	 Sell @ market
+Example:	
+		OandaWrap::sell_market(500000, "EUR_USD");
+		{
+		  "instrument" : "EUR_USD",
+		  "time" : "2014-12-06T20:36:06Z", // Time that order was executed
+		  "price" : 1.37041,               // Trigger price of the order
+		  "tradeOpened" : {
+		    "id" : 175517237,              // Order id
+		    "units" : 500000,              // Number of units
+		    "side" : "sell",               // Direction of the order
+		    "takeProfit" : 0,              // The take-profit associated with the order, if any
+		    "stopLoss" : 0,                // The stop-loss associated with the order, if any
+		    "trailingStop" : 0             // The trailing stop associated with the order, if any
+		  },
+		  "tradesClosed" : [],
+		  "tradeReduced" : {}
+		}
+
+
+Function: sell_limit($units, $pair, $price, $rest = Optional)
+--------------------------------------------
+Usage:	 Sell limit with expiry
+Example:	
+		OandaWrap::sell_limit(500000, "EUR_USD", 1.2, OandaWrap::expiry_min(60), array("stopLoss" => 1.4));
+		{
+		  "instrument" : "EUR_USD",
+		  "time" : "2013-01-01T20:36:06Z",      // Time that order was executed
+		  "price" : 1.2,                        // Trigger price of the order
+		  "orderOpened" : {             
+		    "id" : 175517237,                   // Order id
+		    "units" : 500000,                   // Number of units
+		    "side" : "sell",                    // Direction of the order
+		    "takeProfit" : 0,                   // The take-profit associated with the order, if any
+		    "stopLoss" : 1.4,                   // The stop-loss associated with the order, if any
+		    "expiry" : "2013-02-01T00:00:00Z",  // The time the order expires (in RFC3339 format)
+		    "upperBound" : 0,                   // The maximum execution price associated with the order, if any
+		    "lowerBound" : 0,                   // The minimum execution price associated with the order, if any
+		    "trailingStop" : 0                  // The trailing stop associated with the order, if any
+		  }
+		}
+
+
+Function: sell_stop($units, $pair, $price, $rest = Optional)
+--------------------------------------------
+Usage:	 Sell stop with expiry
+Example:	
+		OandaWrap::sell_stop(500000, "EUR_USD", 1.2, OandaWrap::expiry_min(60), array("takeProfit" => 1.1));
+		{
+		
+		  "instrument" : "EUR_USD",
+		  "time" : "2013-01-01T20:36:06Z",      // Time that order was executed
+		  "price" : 1.2,                        // Trigger price of the order
+		  "orderOpened" : {             
+		    "id" : 175517237,                   // Order id
+		    "units" : 500000,                   // Number of units
+		    "side" : "sell",                    // Direction of the order
+		    "takeProfit" : 1.1,                 // The take-profit associated with the order, if any
+		    "stopLoss" : 0,                     // The stop-loss associated with the order, if any
+		    "expiry" : "2013-02-01T00:00:00Z",  // The time the order expires (in RFC3339 format)
+		    "upperBound" : 0,                   // The maximum execution price associated with the order, if any
+		    "lowerBound" : 0,                   // The minimum execution price associated with the order, if any
+		    "trailingStop" : 0                  // The trailing stop associated with the order, if any
+		  }
+		}
+
+
+Function: sell_mit($units, $pair, $price, $expiry, $rest = Optional)
+--------------------------------------------
+Usage:	 Sell marketIfTouched with expiry
+Example:
+		OandaWrap::sell_mit(500000, "EUR_USD", 1.2, OandaWrap::expiry_min(60));
+		{
+		
+		  "instrument" : "EUR_USD",
+		  "time" : "2013-01-01T20:36:06Z",      // Time that order was executed
+		  "price" : 1.2,                        // Trigger price of the order
+		  "orderOpened" : {             
+		    "id" : 175517237,                   // Order id
+		    "units" : 500000,                   // Number of units
+		    "side" : "sell",                    // Direction of the order
+		    "takeProfit" : 0,                   // The take-profit associated with the order, if any
+		    "stopLoss" : 0,                     // The stop-loss associated with the order, if any
+		    "expiry" : "2013-02-01T00:00:00Z",  // The time the order expires (in RFC3339 format)
+		    "upperBound" : 0,                   // The maximum execution price associated with the order, if any
+		    "lowerBound" : 0,                   // The minimum execution price associated with the order, if any
+		    "trailingStop" : 0                  // The trailing stop associated with the order, if any
+		  }
+		}
+
+//////////////////////////////////////////////////////////////////////////////////
+//
+//	EXPIRY WRAPPERS
+//
+//////////////////////////////////////////////////////////////////////////////////
+
+Function: expiry($seconds=5)
+--------------------------------------------
+Usage:	 Return the Oanda compatible timestamp of time() + $seconds
+Example:	OandaWrap::expiry(3600);
+			//Return an expiry time: 2014-13-08T01:00:00Z
+			//Here we are one hour in the future (3600 seconds)
+
+
+Function: expiry_min($minutes=5)
+--------------------------------------------
+Usage:	 Return the Oanda compatible timestamo of time() + $minutes
+Example:	OandaWrap::expiry_min(5);
+			//Return an expiry time: 2014-13-08T00:05:00Z
+			//Here we are five minutes in the future
+
+
+Function: expiry_hour($hours=1)
+--------------------------------------------
+Usage:	 Return the Oanda compatible timestamp of time() + $hours
+Example:	OandaWrap::expiry_hour(24);
+			//Return an expiry time: 2014-14-08T00:00:00Z
+			//Here we are one dat in the future
+
+
+//////////////////////////////////////////////////////////////////////////////////
+//
+//	MODIFICATION WRAPPERS
+//
+//////////////////////////////////////////////////////////////////////////////////
+
+When setting order or trade variables a json object will be returned, or a message inside
+a json object on failure:
+
+Example: 
+	OandaWrap::units_set(43211, 500000);
+	{
+		  "id" : 43211,                        // The ID of the order
+		  "instrument" : "EUR_USD",            // The symbol of the instrument of the order
+		  "units" : 500000                     // The number of units in the order
+		  "side" : "buy",                      // The direction of the order
+		  "type" : "limit",                    // The type of the order
+		  "time" : "2013-01-01T00:00:00Z",     // The time of the order (in RFC3339 format)
+		  "price" : 1.45123,                   // The price the order was executed at
+		  "takeProfit" : 1.7,                  // The take-profit associated with the order, if any
+		  "stopLoss" : 1.3,                    // The stop-loss associated with the order, if any
+		  "expiry" : "2013-02-01T00:00:00Z",   // The time the order expires (in RFC3339 format)
+		  "upperBound" : 0,                    // The maximum execution price associated with the order, if any
+		  "lowerBound" : 0,                    // The minimum execution price associated with the order, if any
+		  "trailingStop" : 10                  // The trailing stop associated with the order, if any
+		}
+
+Function: stop_set($type, $id, $price)
+--------------------------------------------
+Usage:	 Set the stopLoss of an order or trade
+Example:	OandaWrap::stop_set("trade", 101233, 101.543);
+				//$type can be "order" or "trade"
+
+
+Function: tp_set($type, $id, $price)
+--------------------------------------------
+Usage:	 Set the takeProfit of an order or trade
+Example:	OandaWrap::tp_set("order", 5050005, 101.543);
+				//$type can be "order" or "trade"
+
+
+Function: trailing_stop_set($type, $id, $distance)
+--------------------------------------------
+Usage:	 Set the trailingStop of an order or trade
+Example:	OandaWrap::trailing_stop_set("trade", 101233, 15);
+				//$type can be "order" or "trade"
+
+
+Function: expiry_set($id, $time)
+--------------------------------------------
+Usage:	 Set the units of an order
+Example:	OandaWrap::stop_set(15150, OandaWrap::expiry(3600));
+			//Use OandaWrap::expiry to find expiry time in seconds
+
+Function: units_set($id, $units)
+--------------------------------------------
+Usage:	 Set the units of an order
+Example:	
+		OandaWrap::units_set(43211, 500000);
+
+//////////////////////////////////////////////////////////////////////////////////
+//
+//	PRICE WRAPPERS
+//
+//////////////////////////////////////////////////////////////////////////////////
+
+Function: prices($pairs)
+--------------------------------------------
+Usage:	 Return an array of prices for $pairs
+Example:
+		
+		OandaWrap::prices("EUR_USD", "USD_JPY", "EUR_CAD");
+		  {
+			  "prices": [
+			    {
+			      "instrument":"EUR_USD",
+			      "time":"2013-06-21T17:41:04.648747Z",  // time in RFC3339 format
+			      "bid":1.31513,
+			      "ask":1.31528
+			    },
+			    {
+			      "instrument":"USD_JPY",
+			      "time":"2013-06-21T17:49:02.475381Z",
+			      "bid":97.618,
+			      "ask":97.633
+			    },
+			    {
+			      "instrument":"EUR_CAD",
+			      "time":"2013-06-21T17:51:38.063560Z",
+			      "bid":1.37489,
+			      "ask":1.37517,
+			      "status": "halted"                    // this response parameter will only appear if the instrument is currently halted on the OANDA platform.
+			    }
+			  ]
+			}
+
+
+Function: price($pair)
+--------------------------------------------
+Usage:	 Wrapper, return the current price of $pair
+Example:
+		OandaWrap::price("EUR_USD");
+		  {
+		      "instrument":"EUR_USD",
+		      "time":"2013-06-21T17:41:04.648747Z",  // time in RFC3339 format
+		      "bid":1.31513,
+		      "ask":1.31528
+		    }
+
+Function: candles($pair, $gran, $number)
+--------------------------------------------
+Usage:	 Return a number of candles for $pair
+Example:	
+		OandaWrap::candles("EUR_USD", "S5", 5);
+			{
+			    "instrument" : "EUR_USD",
+			    "granularity" : "S5",
+			    "candles" : [
+			        {
+			            "time" : "2014-07-02T04:00:00.000000Z", // time in RFC3339 format
+			            "openMid" : 1.36803,
+			            "highMid" : 1.368125,
+			            "lowMid" : 1.364275,
+			            "closeMid" : 1.365315,
+			            "volume" : 28242,
+			            "complete" : true
+			        },
+			        {
+			            "time" : "2014-07-03T04:00:00.000000Z", // time in RFC3339 format
+			            "openMid" : 1.36532,
+			            "highMid" : 1.366445,
+			            "lowMid" : 1.35963,
+			            "closeMid" : 1.3613,
+			            "volume" : 30487,
+			            "complete" : false
+			        }
+			    ]
+			}
+			
+		$gran values:
+			“S5” - 5 seconds
+			“S10” - 10 seconds
+			“S15” - 15 seconds
+			“S30” - 30 seconds
+			“M1” - 1 minute
+			“M2” - 2 minutes
+			“M3” - 3 minutes
+			“M5” - 5 minutes
+			“M10” - 10 minutes
+			“M15” - 15 minutes
+			“M30” - 30 minutes
+			“H1” - 1 hour
+			“H2” - 2 hours
+			“H3” - 3 hours
+			“H4” - 4 hours
+			“H6” - 6 hours
+			“H8” - 8 hours
+			“H12” - 12 hours
+			“D” - 1 Day
+			“W” - 1 Week
+			“M” - 1 Month
