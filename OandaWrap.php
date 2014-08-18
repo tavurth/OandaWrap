@@ -3,7 +3,7 @@
 /*
 
 Copyright 2014 William Whitty
-will.whitty.arbeit@gmail.com
+Tavurth@gmail.com
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 	//	Written by William Whitty July 2014
 	//	Questions, comments or bug reports?
 	//
-	//		will.whitty.arbeit@gmail.com
+	//		Tavurth@gmail.com
 	//
 	//	I am in no way responsible for any of your losses incurred
 	//	while trading forex. 
@@ -43,6 +43,7 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 	//////////////////////////////////////////////////////////////////////////////////
 	
 	class OandaWrap {
+	
 		//////////////////////////////////////////////////////////////////////////////////
 		//
 		//	VARIABLE DECLARATION AND HELPER FUNCTIONS
@@ -54,68 +55,65 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 		private static $server;
 		private static $baseUrl;
 		
-		public static function setup($server=FALSE, $apiKey=FALSE, $userName=FALSE, $accountName=FALSE) {
-		//Setup our enviornment variables
-			self::$apiKey = self::$account = self::$server = "";
-			switch (ucfirst(strtolower($server))) {
-				case "Live":
-					//Set the url
-					self::$baseUrl = "https://api-fxtrade.oanda.com/v1/";
-					//Check our account ID
-					if ($userName == FALSE) {
-						echo "OandaWrap: Must provide username for live server.";
-						return FALSE;
-					}
-					//Check our API key
-					if ($apiKey == FALSE) {
-						echo "OandaWrap: Must provide API key for live server.";
-						return FALSE;
-					}
+		private static function check_name($name, $printValue, $verbose=TRUE) {
+		//Check if an argument was correctly passed.
+			if (!isset($name) || $name === FALSE) {	//Failure
+				if ($verbose)
+					echo $printValue . "<br>";
+				return FALSE;
+			}
+			else //Valid name
+				return $name;
+		}
+		
+		protected static function setup_account($baseUrl, $apiKey, $userName, $accountName, $serverType="The") {
+		//Generic account setup program, prints out errors in the html if incomplete
+			//Set the url
+			self::$baseUrl = $baseUrl;
+			//If we passed an accountName with a username (Precise login)
+			if (self::check_name($userName, "Invalid $serverType account user name: $userName.")) {
+				if (self::check_name($apiKey, "Must provide API key for $serverType server.")) {
+					
 					//Set the API key
 					self::$apiKey = $apiKey;
-					
-					if ($accountName) {
+				
+					if (self::check_name($accountName, "Invalid $serverType account user name: $accountName.")) {
 						//Find the account
 						$account = self::account_named($accountName, $userName);
 						//Check the account
-						if (!$account) {
-							echo "OandaWrap: Invalid live account name: $accountName.<br>";
+						if (self::check_name($account, "Invalid $serverType account name: $accountName.<br>"));
 							return FALSE;
-						}
 						//Set our current account
 						self::$account = $account;
 					}
-					else {
-						$accounts = self::accounts($userName);
-						//Check the account
-						if (count($accounts) < 1) {
-							echo "OandaWrap: Invalid live account name: $userName.<br>";
-							return FALSE;
-						}
-						//Set our current account
-						self::$account = $accounts[0];
-					}
-					return TRUE;
+				}
+			}
+			//If we just passed in a username, then set the first account from the list (Sloppy login)
+			else {
+				$accounts = self::accounts($userName);
+				//Check the account
+				if (count($accounts) < 1) {
+					echo "OandaWrap: Invalid $serverType account name: $userName.<br>";
+					return FALSE;
+				}
+				//Set our current account
+				self::$account = $accounts[0];
+			}
+			return TRUE;
+		}
+		
+		public static function setup($server=FALSE, $apiKey=FALSE, $userName=FALSE, $accountName=FALSE) {
+		//Setup our enviornment variables
+			self::$apiKey = self::$account = self::$server = "";
+			//User can send
+			//"Live", "Demo" or the default "Sandbox" servers.
+			switch (ucfirst(strtolower($server))) {
+				case "Live":
+					return self::setup_account("https://api-fxtrade.oanda.com/v1/", $apiKey, $userName, $accountName, "Live");
 				case "Demo":
-					//Set the url
-					self::$baseUrl = "http://api-fxgame.oanda.com/v1/";
-					//Check our account ID
-					if ($accountId == FALSE) {
-						echo "OandaWrap: Must provide accountId for demo server."; 
-						return FALSE;
-					}
-					//Set the account
-					self::$account = self::account($accountId);
-					//Check the account
-					if (!isset(self::$account->balance)) {
-						echo "OandaWrap: Invalid demo accountId: $accountId.";
-						return FALSE;
-					}
-					return TRUE;
+					return self::setup_account("http://api-fxgame.oanda.com/v1/", $apiKey, $userName, $accountName, "Demo");
 				default:
-					//Set the url
-					self::$baseUrl = "http://api-sandbox.oanda.com/v1/";
-					return TRUE;
+					return self::setup_account("http://api-sandbox.oanda.com/v1/", FALSE, FALSE, FALSE, "Sandbox");
 			}
 		}
 		
@@ -131,7 +129,9 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 		
 		private static function index() {
 		//Return a formatted string for more concise code
-			return "accounts/" . self::$account->accountId . "/";
+			if (isset(self::$account->accountId))
+				return "accounts/" . self::$account->accountId . "/";
+			return "accounts/";
 		}
 		private static function position_index() {
 		//Return a formatted string for more concise code
@@ -158,9 +158,11 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 		
 		public static function authenticate($ch) {
 		//Authenticate our curl object
-			curl_setopt($ch, CURLOPT_HTTPHEADER, array('Authorization: Bearer ' . self::$apiKey));  //Sending our login hash
-			curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, true);				//Verify Oanda
-			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);				//Verify Me
+			if (isset(self::$apiKey)) {    								//Sending our login hash
+				curl_setopt($ch, CURLOPT_HTTPHEADER, array('Authorization: Bearer ' . self::$apiKey));
+				curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, true);			//Verify Oanda
+				curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);			//Verify Me
+			}
 		}
 		public static function configure($ch) {
 		//Configure default connection settings
@@ -205,7 +207,7 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 			
 			curl_setopt($ch, CURLOPT_URL, $url);						//Url setup
 			curl_setopt($ch, CURLOPT_WRITEFUNCTION, $callback);			//Our callback, called for every new data packet
-			//curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);				//We want the data returned as a variable
+			//curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);				//We dont want the data returned as a variable
 			return (curl_exec($ch));									//Launch
 		}
 		
@@ -215,14 +217,14 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 		//
 		//////////////////////////////////////////////////////////////////////////////////
 		
-		public static function accounts($username) {
-		//Return an array of the accounts for $username 
-			return self::get("accounts", array("username" => $username))->accounts;
-		}
-		
 		public static function account($accountId) {
 		//Return the information for $accountId
 			return self::get("accounts/" . $accountId);
+		}
+		
+		public static function accounts($username) {
+		//Return an array of the accounts for $username 
+			return self::get("accounts", array("username" => $username))->accounts;
 		}
 		
 		public static function account_named($accountName, $uName) {
@@ -244,6 +246,13 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 		//
 		//////////////////////////////////////////////////////////////////////////////////
 		
+		public static function instrument($pair) {
+		//Return instrument for named $pair
+			foreach(self::instruments()->instruments as $instrument)
+				if ($pair == $instrument->instrument)
+					return $instrument;
+			return false;
+		}
 		public static function instruments() {
 		//Return a list of tradeable instruments for $accountId
 			return self::get("instruments", array("accountId" => self::$account->accountId));
@@ -255,14 +264,6 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 				return $home . "_" . $away;
 			if (self::instrument($away . "_" . $home))
 				return $away . "_" . $home;
-		}
-		
-		public static function instrument($pair) {
-		//Return instrument for named $pair
-			foreach(self::instruments()->instruments as $instrument)
-				if ($pair == $instrument->instrument)
-					return $instrument;
-			return false;
 		}
 		
 		public static function instrument_split($pair) {
@@ -285,19 +286,26 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 		//
 		//////////////////////////////////////////////////////////////////////////////////
 		
-		public static function convert($pair, $amount, $homeIndex=0) {
-			$instrument = self::instrument_name($pair[0], $pair[1]);
-			$reverse	= (strpos($instrument, $pair[$homeIndex]) > strpos($instrument, "_") ? TRUE : FALSE);
-			$price 		= self::price($instrument);
+		public static function convert($pair, $amount, $baseIndex=0) {
+		//Convert $amount of $pair 
+			$reverse	= (strpos($pair, $pair[$baseIndex]) > strpos($pair, "_") ? TRUE : FALSE);
+			$price 		= self::price($pair);
 			
+			//Which way to convert 
 			return ($reverse ? $amount / $price->ask : $amount * $price->ask);
 		}
 		
-		public static function percent_nav ($pair, $percent, $leverage=1) {
+		public static function nav_size_percent($pair, $percent, $leverage=1) {
 		//Return the value of a percentage of the NAV (Net account value)
-			$amount	= self::convert(array(self::$account->accountCurrency, self::instrument_split($pair)[0]), self::$account->balance*($percent/100));
-			
-			return floor($amount * $leverage);
+			$baseSize	= self::convert(self::instrument_name(self::$account->accountCurrency, self::instrument_split($pair)[0]), self::$account->balance*($percent/100));
+			return floor($baseSize * $leverage);
+		}
+		
+		public static function nav_size_percent_per_pip($pair, $riskPerPip) {
+		//Return the size for $pair that risks $riskPerPip every pip
+			$maxSize  = self::nav_size_percent($pair, 100, $leverage);
+			//@ maximum 50:1 leverage, risk is 0.5% per pip
+			return ($riskPerPip/0.5)*$maxSize;
 		}
 		
 		//////////////////////////////////////////////////////////////////////////////////
@@ -306,13 +314,16 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 		//
 		//////////////////////////////////////////////////////////////////////////////////
 		
-		
-		public static function transaction_all($number=50, $pair="all") {
+		public static function transaction($transactionId) {
+		//Get information on a single transaction
+			return self::get(self::transaction_index() . $transactionId);
+		}
+		public static function transactions($number=50, $pair="all") {
 		//Return an object with all transactions (max 50)
 			return self::get(self::transaction_index(), array("count" => $number, "instrument" => $pair));
 		}
 		
-		public static function transaction_types($types, $number=50, $pair="all") {
+		public static function transactions_types($types, $number=50, $pair="all") {
 		//Return an array with all transactions conforming to one of {$types}
 			$array = array(); 
 			foreach (self::transaction_all($number, $pair)->transactions as $transaction)
@@ -321,9 +332,67 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 			return $array;
 		}
 		
-		public static function transaction_get($transactionId) {
-		//Get information on a single transaction
-			return self::get(self::transaction_index() . $transactionId);
+		//////////////////////////////////////////////////////////////////////////////////
+		//
+		//	! LIVE FUNCTIONS !
+		//
+		//////////////////////////////////////////////////////////////////////////////////
+		
+		//////////////////////////////////////////////////////////////////////////////////
+		//
+		//	EXPIRY TIME AS STRING
+		//
+		//////////////////////////////////////////////////////////////////////////////////
+		
+		public static function expiry($seconds=5) {
+		//Return the Oanda compatible timestamp of time() + $seconds
+			return date("Y-m-j\TH:i:s\Z", (time()+$seconds*60));
+		}
+		public static function expiry_min($minutes=5) {
+		//Return the Oanda compatible timestamo of time() + $minutes
+			return self::expiry($minutes*60);
+		}
+		public static function expiry_hour($hours=1) {
+		//Return the Oanda compatible timestamp of time() + $hours
+			return self::expiry_min($hours*60);
+		}
+		
+		//////////////////////////////////////////////////////////////////////////////////
+		//
+		//	BIFUNCTIONAL MODIFICATION WRAPPERS
+		//
+		//////////////////////////////////////////////////////////////////////////////////
+		
+		//$type in all cases here is either "order" or "trade"
+		
+		private static function set_($type, $id, $args) {
+		//Macro function for setting attributes of both orders and trades
+			switch ($type) {
+				case "order":
+					return self::order_modify($id, $args);
+				case "trade":
+					return self::trade_modify($id, $args);
+			}
+		}
+		public static function set_stop($type, $id, $price) {
+		//Set the stopLoss of an order or trade
+			return self::set_($type, $id, array("stopLoss" => $price));
+		}
+		public static function set_tp($type, $id, $price) {
+		//Set the takeProfit of an order or trade
+			return self::set_($type, $id, array("takeProfit" => $price));
+		}
+		public static function set_trailing_stop($type, $id, $distance) {
+		//Set the trailingStop of an order or trade
+			return self::set_($type, $id, array("trailingStop" => $distance));
+		}
+		public static function set_expiry($id, $time) {
+		//Set the units of an order
+			return self::set_("order", $id, array("expiry" => $time));
+		}
+		public static function set_units($id, $units) {
+		//Set the units of an order
+			return self::set_("order", $id, array("units" => $units));
 		}
 		
 		//////////////////////////////////////////////////////////////////////////////////
@@ -332,13 +401,13 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 		//
 		//////////////////////////////////////////////////////////////////////////////////
 		
-		public static function order_pair($pair, $number=50) {
-		//Get an object with all the orders for $pair
-			return self::get(self::order_index(), array("instrument" => $pair, "count" => $number));
-		}
 		public static function order($orderId) {
 		//Return an object with the information about $orderId
 			return self::get(self::order_index() . $orderId);
+		}
+		public static function order_pair($pair, $number=50) {
+		//Get an object with all the orders for $pair
+			return self::get(self::order_index(), array("instrument" => $pair, "count" => $number));
 		}
 		public static function order_open($side, $units, $pair, $type, $rest = FALSE) {
 		//Open a new order
@@ -365,17 +434,51 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 		
 		//////////////////////////////////////////////////////////////////////////////////
 		//
+		//	ORDER MODIFICATION WRAPPERS
+		//
+		//////////////////////////////////////////////////////////////////////////////////
+		
+		public static function order_set_stop($id, $price) {
+		//Set the stopLoss of an order
+			return self::set_stop("order", $id, $price);
+		}
+		public static function order_set_tp($id, $price) {
+		//Set the takeProfit of an order
+			return self::set_tp("order", $id, $price);
+		}
+		public static function order_set_trailing_stop($id, $price) {
+		//Set the trailingStop of an order
+			return self::set_trailing_stop("order", $id, $distance);
+		}
+		public static function order_set_expiry($id, $time) {
+		//Set the units of an order
+			return self::set_("order", $id, array("expiry" => $time));
+		}
+		public static function order_set_units($id, $units) {
+		//Set the units of an order
+			return self::set_("order", $id, array("units" => $units));
+		}
+		
+		public static function order_set_all($pair, $options) {
+		//Modify all orders on $pair
+			foreach (self::order_pair($pair)->orders as $order)
+				if (isset($order->id))
+					self::set_("order", $order->id, $options);
+		}
+		
+		//////////////////////////////////////////////////////////////////////////////////
+		//
 		//	TRADE WRAPPERS
 		//
 		//////////////////////////////////////////////////////////////////////////////////
 		
-		public static function trade_pair($pair, $number=50) {
-		//Return an object with all the trades on $pair
-			return self::get(self::trade_index(), array("instrument" => $pair, "count" => $number));
-		}
 		public static function trade($tradeId) {
 		//Return an object containing information on a single pair
 			return self::get(self::trade_index() . $tradeId);
+		}
+		public static function trade_pair($pair, $number=50) {
+		//Return an object with all the trades on $pair
+			return self::get(self::trade_index(), array("instrument" => $pair, "count" => $number));
 		}
 		public static function trade_modify($tradeId, $options) {
 		//Modify attributes of a trade referenced by $tradeId
@@ -393,11 +496,31 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 					array_push($closed, self::delete(self::trade_index() . $trade->id));
 			return $closed;
 		}
-		public static function trade_modify_all($pair, $options) {
+		
+		//////////////////////////////////////////////////////////////////////////////////
+		//
+		//	TRADE MODIFICATION WRAPPERS
+		//
+		//////////////////////////////////////////////////////////////////////////////////
+		
+		public static function trade_set_stop($id, $price) {
+		//Set the stopLoss of a trade
+			return self::set_stop("trade", $id, $price);
+		}
+		public static function trade_set_tp($id, $price) {
+		//Set the takeProfit of a trade
+			return self::set_tp("trade", $id, $price);
+		}
+		public static function trade_set_trailing_stop($id, $price) {
+		//Set the trailingStop of a trade
+			return self::set_trailing_stop("trade", $id, $distance);
+		}
+		
+		public static function trade_set_all($pair, $options) {
 		//Modify all trades on $pair
 			foreach (self::trade_pair($pair)->trades as $trade)
 				if (isset($trade->id))
-					self::trade_modify($trade->id, $options);
+					self::set_("trade", $trade->id, $options);
 		}
 		
 		//////////////////////////////////////////////////////////////////////////////////
@@ -406,13 +529,13 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 		//
 		//////////////////////////////////////////////////////////////////////////////////
 		
-		public static function position_all() {
-		//Return an object with all the positions for the account
-			return self::get(self::position_index());
-		}
 		public static function position($pair) {
 		//Return an object with the information for a single $pairs position
 			return self::get(self::position_index() . $pair);
+		}
+		public static function position_all() {
+		//Return an object with all the positions for the account
+			return self::get(self::position_index());
 		}
 		public static function position_close($positionId) {
 		//Close the position for a pair using $position Id
@@ -454,19 +577,31 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 		
 		public static function buy_market($units, $pair, $rest = FALSE) {
 		//Buy @ market
-			return self::market("buy", $units, $pair, "market", $rest);
+			return self::market("buy", $units, $pair, $rest);
 		}
 		public static function buy_limit($units, $pair, $price, $expiry, $rest = FALSE) {
 		//Buy limit with expiry
-			return self::limit("buy", $units, $pair, "limit", $price, $expiry, $rest);
+			return self::limit("buy", $units, $pair, $price, $expiry, $rest);
 		}
 		public static function buy_stop($units, $pair, $price, $rest = FALSE) {
 		//Buy stop with expiry
-			return self::stop("buy", $units, $pair, "stop", $price, $expiry, $rest);
+			return self::stop("buy", $units, $pair, $price, $expiry, $rest);
 		}
 		public static function buy_mit($units, $pair, $price, $expiry, $rest = FALSE) {
 		//Buy marketIfTouched with expiry
-			return self::mit("buy", $units, $pair, "marketIfTouched", $price, $expiry, $rest);
+			return self::mit("buy", $units, $pair, $price, $expiry, $rest);
+		}
+		public static function buy_bullish($pair, $risk, $stop, $leverage=50) {
+		//Macro: Buy and limit to %NAV loss for $pair
+			
+			//Buy
+			$bought = self::buy_market(self::nav_size_risk_per_pip($pair, ($risk/$stop)));
+			//Check our trade
+			if (self::check_name($bought->tradeId, $bought->message, FALSE))
+				//Set the stoploss
+				self::trade_set_stop($bought->tradeId, self::price($pair)->ask + (self::instrument_pip($pair) * $stop));
+			//Pass back the new trade
+			return $bought;
 		}
 		
 		//////////////////////////////////////////////////////////////////////////////////
@@ -477,76 +612,31 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 		
 		public static function sell_market($units, $pair, $rest = FALSE) {
 		//Sell @ market
-			return self::market("sell", $units, $pair, "market", $rest);
+			return self::market("sell", $units, $pair, $rest);
 		}
 		public static function sell_limit($units, $pair, $price, $rest = FALSE) {
 		//Sell limit with expiry
-			return self::limit("sell", $units, $pair, "limit", $price, $expiry, $rest);
+			return self::limit("sell", $units, $pair, $price, $expiry, $rest);
 		}
 		public static function sell_stop($units, $pair, $price, $rest = FALSE) {
 		//Sell stop with expiry
-			return self::stop("sell", $units, $pair, "stop", $price, $expiry, $rest);
+			return self::stop("sell", $units, $pair, $price, $expiry, $rest);
 		}
 		public static function sell_mit($units, $pair, $price, $expiry, $rest = FALSE) {
 		//Sell marketIfTouched with expiry
-			return self::mit("sell", $units, $pair, "marketIfTouched", $price, $expiry, $rest);
+			return self::mit("sell", $units, $pair, $price, $expiry, $rest);
 		}
-		
-		//////////////////////////////////////////////////////////////////////////////////
-		//
-		//	EXPIRY WRAPPERS
-		//
-		//////////////////////////////////////////////////////////////////////////////////
-		
-		public static function expiry($seconds=5) {
-		//Return the Oanda compatible timestamp of time() + $seconds
-			return date("Y-m-j\TH:i:s\Z", (time()+$seconds*60));
-		}
-		public static function expiry_min($minutes=5) {
-		//Return the Oanda compatible timestamo of time() + $minutes
-			return self::expiry($minutes*60);
-		}
-		public static function expiry_hour($hours=1) {
-		//Return the Oanda compatible timestamp of time() + $hours
-			return self::expiry_min($hours*60);
-		}
-		
-		//////////////////////////////////////////////////////////////////////////////////
-		//
-		//	MODIFICATION WRAPPERS
-		//
-		//////////////////////////////////////////////////////////////////////////////////
-		
-		//$type in all cases here is either "order" or "trade"
-		
-		private static function _set($type, $id, $args) {
-		//Macro function for setting attributes of both orders and trades
-			switch ($type) {
-				case "order":
-					return self::order_modify($id, $args);
-				case "trade":
-					return self::trade_modify($id, $args);
-			}
-		}
-		public static function stop_set($type, $id, $price) {
-		//Set the stopLoss of an order or trade
-			return self::_set($type, $id, array("stopLoss" => $price));
-		}
-		public static function tp_set($type, $id, $price) {
-		//Set the takeProfit of an order or trade
-			return self::_set($type, $id, array("takeProfit" => $price));
-		}
-		public static function trailing_stop_set($type, $id, $distance) {
-		//Set the trailingStop of an order or trade
-			return self::_set($type, $id, array("trailingStop" => $distance));
-		}
-		public static function expiry_set($id, $time) {
-		//Set the units of an order
-			return self::_set("order", $id, array("expiry" => $time));
-		}
-		public static function units_set($id, $units) {
-		//Set the units of an order
-			return self::_set("order", $id, array("units" => $units));
+		public static function sell_bearish($pair, $risk, $stop, $leverage=50) {
+		//Macro: Sell and limit to %NAV loss for $pair
+			
+			//Sell
+			$sold = self::sell_market(self::nav_size_risk_per_pip($pair, ($risk/$stop)));
+			//Check our trade
+			if (self::check_name($sold->tradeId, $sold->message, FALSE))
+				//Set the stoploss
+				self::trade_set_stop($sold->tradeId, self::price($pair)->bid - (self::instrument_pip($pair) * $stop));
+			//Pass back the new trade
+			return $sold;
 		}
 		
 		//////////////////////////////////////////////////////////////////////////////////
@@ -555,14 +645,14 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 		//
 		//////////////////////////////////////////////////////////////////////////////////
 		
-		public static function prices($pairs) {
-		//Return an array of prices for $pairs
-			return self::get("prices", array("instruments" => implode(",", $pairs)));
-		}
-		
 		public static function price($pair) {
 		//Wrapper, return the current price of $pair
 			return self::prices(array($pair))->prices[0];
+		}
+		
+		public static function prices($pairs) {
+		//Return an array of prices for $pairs
+			return self::get("prices", array("instruments" => implode(",", $pairs)));
 		}
 		
 		public static function candles($pair, $gran, $number) {
