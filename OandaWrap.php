@@ -81,10 +81,9 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 						//Find the account
 						$account = self::account_named($accountName, $userName);
 						//Check the account
-						if (self::check_name($account, "Invalid $serverType account name: $accountName.<br>"));
-							return FALSE;
-						//Set our current account
-						self::$account = $account;
+						if (isset($account->accountId))
+							//Set our current account
+							self::$account = $account;
 					}
 				}
 			}
@@ -93,7 +92,7 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 				$accounts = self::accounts($userName);
 				//Check the account
 				if (count($accounts) < 1) {
-					echo "OandaWrap: Invalid $serverType account name: $userName.<br>";
+					echo "OandaWrap: Invalid $serverType account name: $userName.";
 					return FALSE;
 				}
 				//Set our current account
