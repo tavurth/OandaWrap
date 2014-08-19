@@ -157,7 +157,7 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 		//
 		//////////////////////////////////////////////////////////////////////////////////
 		
-		public static function authenticate($ch) {
+		protected static function authenticate($ch) {
 		//Authenticate our curl object
 			if (isset(self::$apiKey)) {    								//Sending our login hash
 				curl_setopt($ch, CURLOPT_HTTPHEADER, array('Authorization: Bearer ' . self::$apiKey));
@@ -165,7 +165,7 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 				curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);			//Verify Me
 			}
 		}
-		public static function configure($ch) {
+		protected static function configure($ch) {
 		//Configure default connection settings
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);				//We want the data returned as a variable
 			curl_setopt($ch, CURLOPT_TIMEOUT, 10);						//Maximum wait before timeout
