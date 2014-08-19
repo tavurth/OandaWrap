@@ -299,7 +299,7 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 			$price 		= self::price($pair);
 			
 			//Which way to convert 
-			return ($reverse ? $amount / $price->ask : $amount * $price->ask);
+			return ($reverse ? $amount * $price->ask : $amount / $price->ask);
 		}
 		
 		public static function nav_size_percent($pair, $percent, $leverage = 50) {
