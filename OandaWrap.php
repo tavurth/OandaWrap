@@ -597,7 +597,7 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 			return self::mit("buy", $units, $pair, $price, $expiry, $rest);
 		}
 		public static function buy_bullish($pair, $risk, $stop, $leverage=50) {
-		//Macro: Buy $pair and limit size to equal %NAV loss over $stop pips; Then set stopLoss
+		//Macro: Buy $pair and limit size to equal %NAV loss over $stop pips. Then set stopLoss
 			
 			//Buy, sizing so that we $risk / $stop
 			$newTrade = self::buy_market(self::nav_size_risk_per_pip($pair, ($risk/$stop)));
@@ -632,7 +632,7 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 			return self::mit("sell", $units, $pair, $price, $expiry, $rest);
 		}
 		public static function sell_bearish($pair, $risk, $stop, $leverage=50) {
-		//Macro: Sell $pair and limit size to equal %NAV loss over $stop pips; Then set stopLoss
+		//Macro: Sell $pair and limit size to equal %NAV loss over $stop pips. Then set stopLoss
 			
 			//Sell, sizing so that we $risk / $stop
 			$newTrade = self::sell_market(self::nav_size_risk_per_pip($pair, ($risk/$stop)));
