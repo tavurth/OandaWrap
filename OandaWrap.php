@@ -305,11 +305,11 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 		//
 		//////////////////////////////////////////////////////////////////////////////////
 		
-		public static function calc_convert($pair, $amount, $baseIndex=0) {
+		public static function calc_convert($pair, $amount, $homeId) {
 		//Convert $amount of $pair
-			//Use the $baseIndex currency of $pair (AUD_JPY = Aud or Jpy)
-			$reverse	= (strpos($pair, $pair[$baseIndex]) > strpos($pair, "_") ? TRUE : FALSE);
 			$price 		= self::price($pair);
+			//Use the $baseIndex currency of $pair (AUD_JPY = Aud or Jpy)
+			$reverse	= (strpos($pair, $homeId) > strpos($pair, "_") ? FALSE : TRUE);
 			
 			//Which way to convert 
 			return ($reverse ? $amount * $price->ask : $amount / $price->ask);
@@ -332,7 +332,7 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 		
 		public static function nav_size_percent($pair, $percent, $leverage = 50) {
 		//Return the value of a percentage of the NAV (Net account value)
-			$baseSize	= self::calc_convert($pair, self::$account->balance*($percent/100));
+			$baseSize	= self::calc_convert(self::nav_instrument_name($pair), self::$account->balance*($percent/100), "CHF");
 			//Calculate our leveraged size
 			return floor($baseSize * $leverage);
 		}
