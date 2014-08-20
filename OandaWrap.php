@@ -70,13 +70,15 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 		//Generic account setup program, prints out errors in the html if incomplete
 			//Set the url
 			self::$baseUrl = $baseUrl;
-			//If we passed an accountName with a username (Precise login)
+			
+			//Checking our login details
 			if (self::check_name($userName, "Invalid $serverType account user name: $userName.")) {
 				if (self::check_name($apiKey, "Must provide API key for $serverType server.")) {
 					
 					//Set the API key
 					self::$apiKey = $apiKey;
 				
+					//If we passed an accountName with a username (Precise login)
 					if (self::check_name($accountName, "Invalid $serverType account user name: $accountName.")) {
 						//Find the account user requested
 						$account = self::account_named($accountName, $userName);
@@ -85,19 +87,19 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 							//Set as our current account
 							self::$account = $account;
 					}
+					//If we just passed in a username, then set the first account from the list (Sloppy login)
+					else {
+						//Retrieving a list of all accounta
+						$accounts = self::accounts($userName);
+						//Check the account array
+						if (count($accounts) < 1) {
+							echo "OandaWrap: Invalid $serverType account name: $userName.";
+							return FALSE;
+						}
+						//Set our current account
+						self::$account = $accounts[0];
+					}
 				}
-			}
-			//If we just passed in a username, then set the first account from the list (Sloppy login)
-			else {
-				//Retrieving a list of all accounta
-				$accounts = self::accounts($userName);
-				//Check the account array
-				if (count($accounts) < 1) {
-					echo "OandaWrap: Invalid $serverType account name: $userName.";
-					return FALSE;
-				}
-				//Set our current account
-				self::$account = $accounts[0];
 			}
 			//Valididation
 			return TRUE;
@@ -160,7 +162,7 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 		protected static function authenticate($ch) {
 		//Authenticate our curl object
 			if (isset(self::$apiKey)) {    								//Sending our login hash
-				curl_setopt($ch, CURLOPT_HTTPHEADER, array('Authorization: Bearer ' . self::$apiKey));
+				curl_setopt($ch, CURLOPT_HTTPHEADER, array('Authorization: Bearer ' . self::$apiKey, 'Accept-Encoding: gzip, deflate'));
 				curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, true);			//Verify Oanda
 				curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);			//Verify Me
 			}
@@ -176,7 +178,7 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 			self::configure(($ch = curl_init()));						//initialization															
 			curl_setopt($ch, CURLOPT_URL, //Url setup
 				self::$baseUrl . $index . ($query_data ? "?" : "") . ($query_data ? http_build_query($query_data) : "")); 
-			return json_decode(curl_exec($ch));							//Launch
+			return json_decode(gzdecode(curl_exec($ch)));				//Launch and return decrypted data
 		}
 		public static function post($index, $query_data) {
 		//Send a POST request to Oanda
@@ -184,7 +186,7 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 			curl_setopt($ch, CURLOPT_URL, self::$baseUrl . $index);		//Url setup
 			curl_setopt($ch, CURLOPT_POST, 1);							//Tell curl we want to POST
 			curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($query_data));  //Include the POST data
-			return json_decode(curl_exec($ch));							//Launch
+			return json_decode(gzdecode(curl_exec($ch)));				//Launch and return decrypted data
 		}
 		public static function patch($index, $query_data) {
 		//Send a PATCH request to Oanda
@@ -193,21 +195,25 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 			curl_setopt($ch, CURLOPT_POST, 1);							//Tell curl we want to POST
 			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PATCH");			//PATCH request setup
 			curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($query_data));  //Include the POST data
-			return json_decode(curl_exec($ch));							//Launch
+			return json_decode(gzdecode(curl_exec($ch)));				//Launch and return decrypted data
 		}
 		public static function delete($index) {
 		//Send a DELETE request to Oanda
 			self::configure(($ch = curl_init()));						//initialization
 			curl_setopt($ch, CURLOPT_URL, self::$baseUrl . $index);		//Url setup
 			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "DELETE");			//DELETE request setup
-			return json_decode(curl_exec($ch));							//Launch
+			return json_decode(gzdecode(curl_exec($ch)));				//Launch and return decrypted data
 		}
 		public static function stream($url, $callback){
-		//Open a stream to Oanda
+		//Open a stream to Oanda 
+		//$callback = function ($ch, $str) {
+					// $str = gzdecode($str); 
+					// /* { YOUR CODE } */
+					// return strlen($str); }
 			self::authenticate(($ch = curl_init()));
 			curl_setopt($ch, CURLOPT_URL, $url);						//Url setup
 			curl_setopt($ch, CURLOPT_WRITEFUNCTION, $callback);			//Our callback, called for every new data packet
-			//curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);			//We dont want the data returned as a variable
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, FALSE);			//We don't want the data returned as a variable
 			return (curl_exec($ch));									//Launch
 		}
 		
@@ -267,6 +273,7 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 				return $home . "_" . $away;
 			if (self::instrument($away . "_" . $home))
 				return $away . "_" . $home;
+			return FALSE;
 		}
 		
 		public static function instrument_split($pair) {
@@ -292,7 +299,7 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 		//
 		//////////////////////////////////////////////////////////////////////////////////
 		
-		public static function convert($pair, $amount, $baseIndex=0) {
+		public static function calc_convert($pair, $amount, $baseIndex=0) {
 		//Convert $amount of $pair
 			//Use the $baseIndex currency of $pair (AUD_JPY = Aud or Jpy)
 			$reverse	= (strpos($pair, $pair[$baseIndex]) > strpos($pair, "_") ? TRUE : FALSE);
@@ -302,9 +309,24 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 			return ($reverse ? $amount * $price->ask : $amount / $price->ask);
 		}
 		
+		public static function calc_pips($pair, $open, $close) {
+		//Return the pip difference between prices $open and $close for $pair
+			return round(($open - $close)/self::instrument_pip($pair), 2);
+		}
+		
+		public static function calc_pip_price($pair, $size) {
+		//Return the cost of a single pip of $pair when $size is used
+			return (self::instrument_pip($pair)/self::price(self::nav_instrument_name($pair, 1))->ask)*$size;
+		}
+		
+		public static function nav_instrument_name($pair, $index=0) {
+		//Return the instrument name used to convert currency for the NAV
+			return self::instrument_name(self::$account->accountCurrency, self::instrument_split($pair)[$index]);
+		}
+		
 		public static function nav_size_percent($pair, $percent, $leverage = 50) {
 		//Return the value of a percentage of the NAV (Net account value)
-			$baseSize	= self::convert(self::instrument_name(self::$account->accountCurrency, self::instrument_split($pair)[0]), self::$account->balance*($percent/100));
+			$baseSize	= self::calc_convert($pair, self::$account->balance*($percent/100));
 			//Calculate our leveraged size
 			return floor($baseSize * $leverage);
 		}
@@ -315,6 +337,23 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 			$baseSize = ($riskPerPip/0.5)*self::nav_size_percent($pair, 100, $leverage);
 			//Calculate our leveraged size
 			return floor(($leverage/50)*$baseSize);
+		}
+		
+		public static function nav_pnl($pair, $dollarValue=FALSE) {
+		//Return the pnl for $pair, if $dollarValue is set TRUE, return in base currency.
+			$position	= self::position($pair);
+			if (isset($position->units)) {
+				$side		= ($position->side == "buy" ? 1 : -1);
+				//Buyback at the spread
+				$price		= ($side > 0 ? self::price($pair)->bid : self::price($pair)->ask);
+				//Pip decimal for our pair (Invert if short)
+				$pips		= self::calc_pips($pair, $price, $position->avgPrice)*$side;
+				//Calculate the pnl and convert to our base currency
+				$pnl 		= $pips * self::calc_pip_price($pair, $position->units);
+				
+				//If we asked for dollarValue, else percentage returned as 1/100
+				return round(($dollarValue ? $pnl : ($pnl / self::$account->balance)*100), 2); 
+			}
 		}
 		
 		//////////////////////////////////////////////////////////////////////////////////
@@ -333,7 +372,7 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 		}
 		
 		public static function transactions_types($types, $number=50, $pair="all") {
-		//Return an array with all transactions conforming to one of {$types}
+		//Return an array with all transactions conforming to one of $types which is an array of strings
 			$array = array(); 
 			//Return all transactions and loop
 			foreach (self::transaction_all($number, $pair)->transactions as $transaction)
@@ -422,10 +461,6 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 		//Open a new order, expanded for simplified limit order processing
 			return self::order_open($side, $units, $pair, $type, array_merge(array("price" => $price, "expiry" => $expiry), (is_array($rest) ? $rest : array())));
 		}
-		public static function order_modify($orderId, $options) {
-		//Modify the parameters of an order
-			return self::patch(self::order_index() . $orderId, $options);
-		}
 		public static function order_close($orderId) {
 		//Close an order by Id
 			return self::delete(self::order_index() . $orderId);
@@ -443,6 +478,10 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 		//
 		//////////////////////////////////////////////////////////////////////////////////
 		
+		public static function order_set($orderId, $options) {
+		//Modify the parameters of an order
+			return self::patch(self::order_index() . $orderId, $options);
+		}
 		public static function order_set_stop($id, $price) {
 		//Set the stopLoss of an order
 			return self::set_stop("order", $id, $price);
@@ -485,10 +524,6 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 		//Return an object with all the trades on $pair
 			return self::get(self::trade_index(), array("instrument" => $pair, "count" => $number));
 		}
-		public static function trade_modify($tradeId, $options) {
-		//Modify attributes of a trade referenced by $tradeId
-			return self::patch(self::trade_index() . $tradeId, $options);
-		}
 		public static function trade_close($tradeId) {
 		//Close trade referenced by $tradeId
 			return self::delete(self::trade_index() . $tradeId);
@@ -508,6 +543,10 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 		//
 		//////////////////////////////////////////////////////////////////////////////////
 		
+		public static function trade_set($tradeId, $options) {
+		//Modify attributes of a trade referenced by $tradeId
+			return self::patch(self::trade_index() . $tradeId, $options);
+		}
 		public static function trade_set_stop($id, $price) {
 		//Set the stopLoss of a trade
 			return self::set_stop("trade", $id, $price);
@@ -542,13 +581,13 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 		//Return an object with all the positions for the account
 			return self::get(self::position_index());
 		}
-		public static function position_close($positionId) {
-		//Close the position for a pair using $position Id
-			return self::delete(self::position_index() . $positionId);
-		}
-		public static function position_close_pair($pair) {
+		public static function position_close($pair) {
 		//Close the position for $pair
 			return self::delete(self::position($pair)->id);
+		}
+		public static function position_close_id($positionId) {
+		//Close the position for a pair using $position Id
+			return self::delete(self::position_index() . $positionId);
 		}
 		
 		//////////////////////////////////////////////////////////////////////////////////
