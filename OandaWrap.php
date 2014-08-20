@@ -159,6 +159,10 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 		//
 		//////////////////////////////////////////////////////////////////////////////////
 		
+		protected static function data_decode($data) {
+		//Return decoded data
+			return (!($decoded = @gzdecode($data)) ? $data : $decoded);
+		}
 		protected static function authenticate($ch) {
 		//Authenticate our curl object
 			if (isset(self::$apiKey)) {    								//Sending our login hash
@@ -178,7 +182,7 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 			self::configure(($ch = curl_init()));						//initialization															
 			curl_setopt($ch, CURLOPT_URL, //Url setup
 				self::$baseUrl . $index . ($query_data ? "?" : "") . ($query_data ? http_build_query($query_data) : "")); 
-			return json_decode(gzdecode(curl_exec($ch)));				//Launch and return decrypted data
+			return json_decode(self::data_decode(curl_exec($ch))); 		//Launch and return decrypted data
 		}
 		public static function post($index, $query_data) {
 		//Send a POST request to Oanda
@@ -186,7 +190,7 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 			curl_setopt($ch, CURLOPT_URL, self::$baseUrl . $index);		//Url setup
 			curl_setopt($ch, CURLOPT_POST, 1);							//Tell curl we want to POST
 			curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($query_data));  //Include the POST data
-			return json_decode(gzdecode(curl_exec($ch)));				//Launch and return decrypted data
+			return json_decode(self::data_decode(curl_exec($ch))); 		//Launch and return decrypted data
 		}
 		public static function patch($index, $query_data) {
 		//Send a PATCH request to Oanda
@@ -195,19 +199,19 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 			curl_setopt($ch, CURLOPT_POST, 1);							//Tell curl we want to POST
 			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PATCH");			//PATCH request setup
 			curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($query_data));  //Include the POST data
-			return json_decode(gzdecode(curl_exec($ch)));				//Launch and return decrypted data
+			return json_decode(self::data_decode(curl_exec($ch))); 		//Launch and return decrypted data
 		}
 		public static function delete($index) {
 		//Send a DELETE request to Oanda
 			self::configure(($ch = curl_init()));						//initialization
 			curl_setopt($ch, CURLOPT_URL, self::$baseUrl . $index);		//Url setup
 			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "DELETE");			//DELETE request setup
-			return json_decode(gzdecode(curl_exec($ch)));				//Launch and return decrypted data
+			return json_decode(self::data_decode(curl_exec($ch))); 		//Launch and return decrypted data
 		}
 		public static function stream($url, $callback){
 		//Open a stream to Oanda 
 		//$callback = function ($ch, $str) {
-					// $str = gzdecode($str); 
+					// $data = OandaWrap::data_decode($str); 
 					// /* { YOUR CODE } */
 					// return strlen($str); }
 			self::authenticate(($ch = curl_init()));
