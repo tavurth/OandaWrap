@@ -166,7 +166,9 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 		protected static function authenticate($ch) {
 		//Authenticate our curl object
 			if (isset(self::$apiKey)) {    								//Sending our login hash
-				curl_setopt($ch, CURLOPT_HTTPHEADER, array('Authorization: Bearer ' . self::$apiKey, 'Accept-Encoding: gzip, deflate'));
+				curl_setopt($ch, CURLOPT_HTTPHEADER, array('Authorization: Bearer ' . self::$apiKey, 
+															'Accept-Encoding: gzip, deflate',
+															'Connection: Keep-Alive'));
 				curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, true);			//Verify Oanda
 				curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);			//Verify Me
 			}
