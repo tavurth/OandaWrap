@@ -120,16 +120,6 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 			}
 		}
 		
-		private static function current_account_set($accountId) {
-		//Set our environment variable $account
-			self::$account = self::account($accountId);
-		}
-		
-		private static function current_account($accountId) {
-		//Return our environment variable account
-			return self::$account;
-		}
-		
 		private static function index() {
 		//Return a formatted string for more concise code
 			if (isset(self::$account->accountId))
@@ -161,7 +151,7 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 		
 		protected static function data_decode($data) {
 		//Return decoded data
-			return (!($decoded = @gzdecode($data)) ? $data : $decoded);
+			return (($decoded = @gzdecode($data)) ? $decoded : $data);
 		}
 		protected static function authenticate($ch) {
 		//Authenticate our curl object
@@ -301,7 +291,7 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 		
 		//////////////////////////////////////////////////////////////////////////////////
 		//
-		//	NAV (NET ACCOUNT VALUE) WRAPPERS
+		//	CALCULATOR FUNCTIONS
 		//
 		//////////////////////////////////////////////////////////////////////////////////
 		
@@ -323,6 +313,22 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 		public static function calc_pip_price($pair, $size) {
 		//Return the cost of a single pip of $pair when $size is used
 			return (self::instrument_pip($pair)/self::price(self::nav_instrument_name($pair, 1))->ask)*$size;
+		}
+		
+		//////////////////////////////////////////////////////////////////////////////////
+		//
+		//	NAV (NET ACCOUNT VALUE) WRAPPERS
+		//
+		////////////////////////////////////////////////////////////////////////////////// 
+		
+		public static function nav_account_set($accountId) {
+		//Set our environment variable $account
+			self::$account = self::account($accountId);
+		}
+		
+		public static function nav_account($accountId) {
+		//Return our environment variable account
+			return self::$account;
 		}
 		
 		public static function nav_instrument_name($pair, $index=0) {
@@ -347,7 +353,7 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 		
 		public static function nav_pnl($pair, $dollarValue=FALSE) {
 		//Return the pnl for $pair, if $dollarValue is set TRUE, return in base currency.
-			$position	= self::position($pair);
+			$position		= self::position($pair);
 			if (isset($position->units)) {
 				$side		= ($position->side == "buy" ? 1 : -1);
 				//Buyback at the spread
@@ -360,6 +366,8 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 				//If we asked for dollarValue, else percentage returned as 1/100
 				return round(($dollarValue ? $pnl : ($pnl / self::$account->balance)*100), 2); 
 			}
+			else 
+				return FALSE;
 		}
 		
 		//////////////////////////////////////////////////////////////////////////////////
@@ -404,7 +412,7 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 		
 		public static function expiry($seconds=5) {
 		//Return the Oanda compatible timestamp of time() + $seconds
-			return date("Y-m-j\TH:i:s\Z", (time()+$seconds*60));
+			return date("Y-m-j\TH:i:s\Z", (time()+$seconds));
 		}
 		public static function expiry_min($minutes=5) {
 		//Return the Oanda compatible timestamo of time() + $minutes
@@ -501,7 +509,7 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 			return self::set_trailing_stop("order", $id, $distance);
 		}
 		public static function order_set_expiry($id, $time) {
-		//Set the units of an order
+		//Set the expiry of an order
 			return self::set_("order", $id, array("expiry" => $time));
 		}
 		public static function order_set_units($id, $units) {
@@ -696,17 +704,17 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 		//////////////////////////////////////////////////////////////////////////////////
 		
 		public static function price($pair) {
-		//Wrapper, return the current price of $pair
+		//Wrapper, return the current price of "$pair"
 			return self::prices(array($pair))->prices[0];
 		}
 		
 		public static function prices($pairs) {
-		//Return an array of prices for $pairs
+		//Return an array {prices} for {$pairs}
 			return self::get("prices", array("instruments" => implode(",", $pairs)));
 		}
 		
 		public static function candles($pair, $gran, $number) {
-		//Return a number of candles for $pair
+		//Return a number of candles for "$pair"
 			return self::get("candles", array("instrument" => $pair, "granularity" => strtoupper($gran), "count" => $number));
 		}
 	}
