@@ -79,7 +79,7 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 					self::$apiKey = $apiKey;
 				
 					//If we passed an accountName with a username (Precise login)
-					if (self::check_name($accountName, "Invalid $serverType account user name: $accountName.")) {
+					if (isset($accountName)) {
 						//Find the account user requested
 						$account = self::account_named($accountName, $userName);
 						//Check the account
@@ -209,7 +209,6 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 			self::authenticate(($ch = curl_init()));
 			curl_setopt($ch, CURLOPT_URL, $url);						//Url setup
 			curl_setopt($ch, CURLOPT_WRITEFUNCTION, $callback);			//Our callback, called for every new data packet
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, FALSE);			//We don't want the data returned as a variable
 			return (curl_exec($ch));									//Launch
 		}
 		
