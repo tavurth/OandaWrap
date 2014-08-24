@@ -156,9 +156,10 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 		protected static function authenticate($ch) {
 		//Authenticate our curl object
 			if (isset(self::$apiKey)) {    								//Sending our login hash
-				curl_setopt($ch, CURLOPT_HTTPHEADER, array('Authorization: Bearer ' . self::$apiKey, 
-															'Accept-Encoding: gzip, deflate',
-															'Connection: Keep-Alive'));
+				curl_setopt($ch, CURLOPT_HTTPHEADER, 
+						array('Authorization: Bearer ' . self::$apiKey, 
+								'Accept-Encoding: gzip, deflate',		//Compress data
+								'Connection: Keep-Alive'));				//Persistant http connection
 				curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, true);			//Verify Oanda
 				curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);			//Verify Me
 			}
@@ -174,6 +175,7 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 			self::configure(($ch = curl_init()));						//initialization															
 			curl_setopt($ch, CURLOPT_URL, //Url setup
 				self::$baseUrl . $index . ($query_data ? "?" : "") . ($query_data ? http_build_query($query_data) : "")); 
+			
 			return json_decode(self::data_decode(curl_exec($ch))); 		//Launch and return decrypted data
 		}
 		public static function post($index, $query_data) {
@@ -381,20 +383,31 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 		}
 		public static function transactions($number=50, $pair="all") {
 		//Return an object with all transactions (max 50)
-			return self::get(self::transaction_index(), array("count" => $number, "instrument" => $pair));
+			$transactions = self::get(self::transaction_index(), array("count" => $number, "instrument" => $pair));
+			//var_dump($transactions);
+			return (isset($transactions->transactions) ? $transactions->transactions : FALSE);
 		}
 		
 		public static function transactions_types($types, $number=50, $pair="all") {
 		//Return an array with all transactions conforming to one of $types which is an array of strings
 			$array = array(); 
-			//Return all transactions and loop
-			foreach (self::transaction_all($number, $pair)->transactions as $transaction)
-				//If the type is valid
-				if (in_array($transaction->type, $types))
-					//Buffer it
-					array_push($buffer, $transaction);
+			//Return all transactions
+			if ($transactions = self::transactions($number, $pair)){
+				//var_dump($transactions);
+				foreach ($transactions as $transaction)
+					//If the type is valid
+					if (in_array($transaction->type, $types))
+						//Buffer it
+						array_push($array, $transaction);
+			}
+			//If we had a problem retrieving transactions
+			else return false;
 			//Return the buffer
 			return $array;
+		}
+		public static function transactions_type($type, $number=50, $pair="all") {
+		//Return up to 50 transactions of $type
+			return self::transactions_types(array($type), $number, $pair);
 		}
 		
 		//////////////////////////////////////////////////////////////////////////////////
@@ -405,13 +418,33 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 		
 		//////////////////////////////////////////////////////////////////////////////////
 		//
-		//	EXPIRY TIME AS STRING
+		// TIME FUNCTIONS
 		//
 		//////////////////////////////////////////////////////////////////////////////////
 		
+		public static function time_string($time) {
+		//Return a correctly formatted RFC3339 string
+			return date(DATE_RFC3339, $time);
+		}
+		
+		public static function gran_seconds($gran) {
+		//Return a the number of seconds per Oandas "granularity"
+			switch (strtoupper($gran)) {
+				case "S5": return 5;
+				case "S10": return 10;
+				case "S30": return 30;
+				case "M1": return 60;
+				case "M5": return 5*60;
+				case "M10": return 10*60;
+				case "M30": return 30*60;
+				case "H1": return 60*60;
+				case "H4": return 4*60*60;
+			}
+		}
+		
 		public static function expiry($seconds=5) {
 		//Return the Oanda compatible timestamp of time() + $seconds
-			return date("Y-m-j\TH:i:s\Z", (time()+$seconds));
+			return self::time_string(time()+$seconds);
 		}
 		public static function expiry_min($minutes=5) {
 		//Return the Oanda compatible timestamo of time() + $minutes
@@ -712,9 +745,20 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 			return self::get("prices", array("instruments" => implode(",", $pairs)));
 		}
 		
+		public static function price_time($pair, $date) {
+		//Wrapper, return the current price of "$pair"
+			$candleTime = self::candles_time($pair, "M30", self::time_string(time()-1000), self::time_string(time()));
+			return $candleTime;
+		}
+		
 		public static function candles($pair, $gran, $number) {
 		//Return a number of candles for "$pair"
 			return self::get("candles", array("instrument" => $pair, "granularity" => strtoupper($gran), "count" => $number));
+		}
+		
+		public static function candles_time($pair, $gran, $start, $end=FALSE) {
+		//Return candles for "$pair" between $start and $end
+			return self::get("candles", array("instrument" => $pair, "granularity" => strtoupper($gran), "start" => "2014-06-19T15%3A47%3A40Z", "end" => "2014-06-19T15%3A47%3A50Z"));
 		}
 	}
 }
