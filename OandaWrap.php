@@ -158,6 +158,7 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 			if (isset(self::$apiKey)) {    								//Sending our login hash
 				curl_setopt($ch, CURLOPT_HTTPHEADER, 
 						array('Authorization: Bearer ' . self::$apiKey, 
+								'X-Accept-Datetime-Format: UNIX',
 								'Accept-Encoding: gzip, deflate',		//Compress data
 								'Connection: Keep-Alive'));				//Persistant http connection
 				curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, true);			//Verify Oanda
@@ -175,7 +176,6 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 			self::configure(($ch = curl_init()));						//initialization															
 			curl_setopt($ch, CURLOPT_URL, //Url setup
 				self::$baseUrl . $index . ($query_data ? "?" : "") . ($query_data ? http_build_query($query_data) : "")); 
-			
 			return json_decode(self::data_decode(curl_exec($ch))); 		//Launch and return decrypted data
 		}
 		public static function post($index, $query_data) {
@@ -424,7 +424,7 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 		
 		public static function time_string($time) {
 		//Return a correctly formatted RFC3339 string
-			return date(DATE_RFC3339, $time);
+			return $tîme;
 		}
 		
 		public static function gran_seconds($gran) {
@@ -747,8 +747,7 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 		
 		public static function price_time($pair, $date) {
 		//Wrapper, return the current price of "$pair"
-			$candleTime = self::candles_time($pair, "M30", self::time_string(time()-1000), self::time_string(time()));
-			return $candleTime;
+			return self::candles_time($pair, "S5", ($time=strtotime($date)), $time+10);
 		}
 		
 		public static function candles($pair, $gran, $number) {
@@ -756,9 +755,9 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 			return self::get("candles", array("instrument" => $pair, "granularity" => strtoupper($gran), "count" => $number));
 		}
 		
-		public static function candles_time($pair, $gran, $start, $end=FALSE) {
+		public static function candles_time($pair, $gran, $start, $end) {
 		//Return candles for "$pair" between $start and $end
-			return self::get("candles", array("instrument" => $pair, "granularity" => strtoupper($gran), "start" => "2014-06-19T15%3A47%3A40Z", "end" => "2014-06-19T15%3A47%3A50Z"));
+			return self::get("candles", array("instrument" => $pair, "granularity" => strtoupper($gran), "start" => $start, "end" => $end));
 		}
 	}
 }
