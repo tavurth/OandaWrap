@@ -467,9 +467,9 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 		//Macro function for setting attributes of both orders and trades
 			switch ($type) {
 				case "order":
-					return self::order_modify($id, $args);
+					return self::order_set($id, $args);
 				case "trade":
-					return self::trade_modify($id, $args);
+					return self::trade_set($id, $args);
 			}
 		}
 		public static function set_stop($type, $id, $price) {
@@ -756,8 +756,6 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 		//Wrapper, return the current price of "$pair"
 			return self::candles_time($pair, "S5", ($time=strtotime($date)), $time+10);
 		}
-		
-		
 		
 		public static function candles($pair, $gran, $rest = FALSE) {
 		//Return a number of candles for "$pair"
