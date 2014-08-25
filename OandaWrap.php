@@ -444,7 +444,7 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 		
 		public static function expiry($seconds=5) {
 		//Return the Oanda compatible timestamp of time() + $seconds
-			return self::time_string(time()+$seconds);
+			return time()+$seconds;
 		}
 		public static function expiry_min($minutes=5) {
 		//Return the Oanda compatible timestamo of time() + $minutes
