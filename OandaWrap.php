@@ -784,7 +784,7 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 		}
 		
 		public static function candles_count($pair, $gran, $count) {
-		//Return candles for "$pair" between $start and $end
+		//Return $count of the previous candles for "$pair"
 			return self::candles($pair, $gran, array("count" => $count));
 		}
 	}
