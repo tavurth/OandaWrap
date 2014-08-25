@@ -205,7 +205,6 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 		public static function stream($url, $callback){
 		//Open a stream to Oanda 
 		//$callback = function ($ch, $str) {
-					// $data = OandaWrap::data_decode($str); 
 					// /* { YOUR CODE } */
 					// return strlen($str); }
 			self::authenticate(($ch = curl_init()));
