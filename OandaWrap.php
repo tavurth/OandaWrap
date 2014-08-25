@@ -422,9 +422,9 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 		//
 		//////////////////////////////////////////////////////////////////////////////////
 		
-		public static function time_string($time) {
-		//Return a correctly formatted RFC3339 string
-			return $tîme;
+		public static function time_seconds($time) {
+		//Convert oanda time from microseconds to seconds
+			return floor($time/1000000);
 		}
 		
 		public static function gran_seconds($gran) {
@@ -735,6 +735,13 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 		//
 		//////////////////////////////////////////////////////////////////////////////////
 		
+		private static function candles_times_to_seconds($candles) {
+		//Convert the times of $candles from microseconds to seconds
+			foreach ($candles->candles as $candle)
+				$candle->time = self::time_seconds($candle->time);
+			return $candles;
+		}
+		
 		public static function price($pair) {
 		//Wrapper, return the current price of "$pair"
 			return self::prices(array($pair))->prices[0];
@@ -750,14 +757,35 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 			return self::candles_time($pair, "S5", ($time=strtotime($date)), $time+10);
 		}
 		
-		public static function candles($pair, $gran, $number) {
+		
+		
+		public static function candles($pair, $gran, $rest = FALSE) {
 		//Return a number of candles for "$pair"
-			return self::get("candles", array("instrument" => $pair, "granularity" => strtoupper($gran), "count" => $number));
+			
+			//Defaults for $rest
+			if (!is_array($rest))
+				$rest = array("count" => 1);
+			else if (!isset($rest["count"]) && !isset($rest["start"]))
+				$rest["count"] = 1;
+			
+			//Retrieve our candles
+			$candles = self::get("candles", array_merge(array("instrument" => $pair, "granularity" => strtoupper($gran)), $rest));
+			//Check the object
+			if (isset($candles->candles) == FALSE)
+				return FALSE;
+			
+			//Convert from microseconds and return
+			return self::candles_times_to_seconds($candles);
 		}
 		
 		public static function candles_time($pair, $gran, $start, $end) {
 		//Return candles for "$pair" between $start and $end
-			return self::get("candles", array("instrument" => $pair, "granularity" => strtoupper($gran), "start" => $start, "end" => $end));
+			return self::candles($pair, $gran, array("start" => $start, "end" => $end));
+		}
+		
+		public static function candles_count($pair, $gran, $count) {
+		//Return candles for "$pair" between $start and $end
+			return self::candles($pair, $gran, array("count" => $count));
 		}
 	}
 }
