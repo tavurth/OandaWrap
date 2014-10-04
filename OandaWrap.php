@@ -227,7 +227,7 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 		public static function accounts($username) {
 		//Return an array of the accounts for $username 
 			$accounts = self::get("accounts", array("username" => $username));
-			return (isset($accounts->accounts) ? $accounts->accounts : FALSE);
+			return (isset($accounts->accounts) ? $accounts->accounts : array());
 		}
 		
 		public static function account_id($accountName, $uName) {
@@ -255,6 +255,15 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 				if ($pair == $instrument->instrument)
 					return $instrument;
 			return false;
+		}
+		public static function instrument_pairs($currency) {
+		//Return instruments for that correspond to $currency
+			$pairs = array();
+			foreach(self::instruments()->instruments as $instrument) {
+				if (strpos($instrument->instrument, $currency))
+					array_push($pairs, $instrument->instrument);
+			}
+			return $pairs;
 		}
 		public static function instruments() {
 		//Return a list of tradeable instruments for $accountId
