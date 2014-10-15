@@ -752,7 +752,7 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 		
 		public static function price($pair) {
 		//Wrapper, return the current price of "$pair"
-			return self::prices(array($pair))->prices[0];
+			return (is_object($prices = self::prices(array($pair)))) ? $prices->prices[0] : FALSE;
 		}
 		
 		public static function prices($pairs) {
