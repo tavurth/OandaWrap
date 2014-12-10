@@ -350,14 +350,12 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 			return floor(($leverage/50)*$baseSize);
 		}
 		
-		//Disabled for code refacture
-		/*public static function nav_pnl($pair, $dollarValue=FALSE) {
+		public static function nav_pnl($pair, $dollarValue=FALSE) {
 		//Return the pnl for $pair, if $dollarValue is set TRUE, return in base currency.
 			$position		= self::position($pair);
 			if (isset($position->units)) {
 				$side		= ($position->side == "buy" ? 1 : -1);
-				//Buyback at the spread
-				$price		= ($side > 0 ? self::price($pair)->bid : self::price($pair)->ask);
+				$price		= self::price($pair)->bid;
 				//Pip decimal for our pair (Invert if short)
 				$pips		= self::calc_pips($pair, $price, $position->avgPrice)*$side;
 				//Calculate the pnl and convert to our base currency
@@ -368,7 +366,7 @@ if (defined("TAVURTH_OANDAWRAP") == FALSE) {
 			}
 			else 
 				return FALSE;
-		}*/
+		}
 		
 		//////////////////////////////////////////////////////////////////////////////////
 		//
