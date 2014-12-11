@@ -73,7 +73,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 			self::$instruments = array();
 			self::$baseUrl = $baseUrl;
 			//Checking our login details
-			if (strpos($baseUrl, 'https') !== FALSE || strpos($baseUrl, 'fxgame') !== FALSE) {
+			if (strpos($baseUrl, 'https') !== FALSE || strpos($baseUrl, 'fxpractice') !== FALSE) {
 				if (self::check_name($accountId, 'Invalid $baseUrl accountId: $accountId.')) {
 					if (self::check_name($apiKey, 'Must provide API key for $baseUrl server.')) {
 						//Set the API key
@@ -96,7 +96,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 				case 'Live':
 					return self::setup_account('https://api-fxtrade.oanda.com/v1/', $apiKey, $accountId);
 				case 'Demo':
-					return self::setup_account('http://api-fxgame.oanda.com/v1/', $apiKey, $accountId);
+					return self::setup_account('https://api-fxpractice.oanda.com/v1/', $apiKey, $accountId);
 				default:
 					return self::setup_account('http://api-sandbox.oanda.com/v1/');
 			}
@@ -330,7 +330,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 			self::$account = self::account($accountId);
 		}
 		
-		public static function nav_account($accountId) {
+		public static function nav_account() {
 		//Return our environment variable account
 			return self::$account;
 		}
