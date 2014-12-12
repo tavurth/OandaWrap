@@ -435,13 +435,26 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 			switch (strtoupper($gran)) {
 				case 'S5': return 5;
 				case 'S10': return 10;
+				case 'S15': return 15;
 				case 'S30': return 30;
 				case 'M1': return 60;
+				case 'M2': return 2*60;
+				case 'M3': return 3*60;
+				case 'M4': return 4*60;
 				case 'M5': return 5*60;
 				case 'M10': return 10*60;
+				case 'M15': return 15*60;
 				case 'M30': return 30*60;
 				case 'H1': return 60*60;
+				case 'H2': return 2*60*60;
+				case 'H3': return 3*60*60;
 				case 'H4': return 4*60*60;
+				case 'H6': return 6*60*60;
+				case 'H8': return 8*60*60;
+				case 'H12': return 12*60*60;
+				case 'D' : return 24*60*60;
+				case 'W' : return 7*24*60*60;
+				case 'M' : return 30*24*60*60;
 			}
 		}
 		
