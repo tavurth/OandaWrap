@@ -43,9 +43,7 @@ if (defined('TAVURTH_OANDAWRAP_EXAMPLE_SETUP') == FALSE) {
 	echo '<body>';
 	
 	//Style our body
-	echo '<style>
-			body { font-size: 18; color:#222222; }
-		</style>';
+	echo '<style> body { font-size: 18; color:#222222; } </style>';
 	
 	//Our header
 	echo '<h2>OandaWrap quotes test:</h2><br>';
