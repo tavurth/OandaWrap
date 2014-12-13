@@ -25,13 +25,16 @@ if (defined('TAVURTH_OANDAWRAP_EXAMPLE_SETUP') == FALSE) {
 	//Include OandaWrap
 	require '../OandaWrap.php';
 	
-	//For the demo and sandbox servers
+	//apiKey can be found inside your account information 
+	//screen and requires a one time generation
 	$apiKey 	= 'REPLACE THIS TEXT';
+	
+	//AccountId is the Id of one of your accounts
+	//To later change this use OandaWrap::nav_account_set($accountId)
 	$accountId 	= 'REPLACE THIS TEXT';
 	
 	//Check to see that OandaWrap is setup correctly.
 	//Arg1 can be 'Demo', 'Live', or Sandbox;
-	
 	if (OandaWrap::setup('Sandbox', $apiKey, $accountId) == FALSE) {
 		echo 'OandaWrap failed to initialize, ';
 		echo 'contact will.whitty.arbeit@gmail.com to submit a bug report.';
@@ -44,8 +47,8 @@ if (defined('TAVURTH_OANDAWRAP_EXAMPLE_SETUP') == FALSE) {
 	
 	//Style our body
 	echo '<style>
-			body { font-size: 18; color:#222222; }
-		</style>';
+		body { font-size: 18; color:#222222; }
+	</style>';
 	
 	//Our header
 	echo '<h2>OandaWrap quotes test:</h2><br>';
