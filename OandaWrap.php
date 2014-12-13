@@ -74,15 +74,19 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 			self::$baseUrl = $baseUrl;
 			//Checking our login details
 			if (strpos($baseUrl, 'https') !== FALSE || strpos($baseUrl, 'fxpractice') !== FALSE) {
-				if (self::check_name($accountId, 'Invalid $baseUrl accountId: $accountId.')) {
-					if (self::check_name($apiKey, 'Must provide API key for $baseUrl server.')) {
-						//Set the API key
-						self::$apiKey = $apiKey;
-						self::$account = self::account($accountId);
-					}
-				}
+				//Check that we have specified an accountId
+				if (! self::check_name($accountId, 'Invalid $baseUrl accountId: $accountId.'))
+					return FALSE;
+				
+				//Check that we have specified an API key
+				if (! self::check_name($apiKey, 'Must provide API key for $baseUrl server.'))
+					return FALSE;
+				
+				//Set the API key
+				self::$apiKey = $apiKey;
+				self::$account = self::account($accountId);
 			}
-			//Valididation
+			//Completed
 			return TRUE;
 		}
 		
@@ -97,8 +101,11 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 					return self::setup_account('https://api-fxtrade.oanda.com/v1/', $apiKey, $accountId);
 				case 'Demo':
 					return self::setup_account('https://api-fxpractice.oanda.com/v1/', $apiKey, $accountId);
-				default:
+				case 'Sandbox':
 					return self::setup_account('http://api-sandbox.oanda.com/v1/');
+				default:
+					echo 'User must select: \'Live\', \'Demo\', or \'Sandbox\' server for OandaWrap setup.';
+					return FALSE;
 			}
 		}
 		
@@ -764,7 +771,10 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		
 		public static function price_time($pair, $date) {
 		//Wrapper, return the current price of '$pair'
-			return self::candles_time($pair, 'S5', ($time=strtotime($date)), $time+10);
+			$candlesDated = self::candles_time($pair, 'S5', ($time=strtotime($date)), $time+10);
+			if (count($candlesDated) > 0)
+				return $candlesDated[0];
+			return FALSE;
 		}
 		
 		public static function candles($pair, $gran, $rest = FALSE) {
