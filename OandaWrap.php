@@ -144,15 +144,17 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		}
 		protected static function authenticate($ch) {
 		//Authenticate our curl object
-			if (isset(self::$apiKey)) {    								//Sending our login hash
-				curl_setopt($ch, CURLOPT_HTTPHEADER, 
-						array('Authorization: Bearer ' . self::$apiKey, 
-								'X-Accept-Datetime-Format: UNIX',
+			$headers = array('X-Accept-Datetime-Format: UNIX',			//Milliseconds since epoch
 								'Accept-Encoding: gzip, deflate',		//Compress data
-								'Connection: Keep-Alive'));				//Persistant http connection
+								'Connection: Keep-Alive');				//Persistant http connection
+								
+			if (isset(self::$apiKey)) {    								//Add our login hash
+				array_push($headers, 'Authorization: Bearer ' . self::$apiKey);
 				curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, true);			//Verify Oanda
 				curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);			//Verify Me
 			}
+			//Set the sockets headers
+			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 		}
 		protected static function configure($ch) {
 		//Configure default connection settings
