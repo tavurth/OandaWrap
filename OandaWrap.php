@@ -145,8 +145,8 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		protected static function authenticate($ch) {
 		//Authenticate our curl object
 			$headers = array('X-Accept-Datetime-Format: UNIX',			//Milliseconds since epoch
-						'Accept-Encoding: gzip, deflate',		//Compress data
-						'Connection: Keep-Alive');				//Persistant http connection
+								'Accept-Encoding: gzip, deflate',		//Compress data
+								'Connection: Keep-Alive');				//Persistant http connection
 								
 			if (isset(self::$apiKey)) {    								//Add our login hash
 				array_push($headers, 'Authorization: Bearer ' . self::$apiKey);
@@ -396,6 +396,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		public static function transactions($number=50, $pair='all') {
 		//Return an object with all transactions (max 50)
 			$transactions = self::get(self::transaction_index(), array('count' => $number, 'instrument' => $pair));
+			//var_dump($transactions);
 			return (isset($transactions->transactions) ? $transactions->transactions : FALSE);
 		}
 		
@@ -403,13 +404,18 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		//Return an array with all transactions conforming to one of $types which is an array of strings
 			$array = array(); 
 			//Return all transactions
-			if ($transactions = self::transactions($number, $pair))	//Retrieve transactions
-				foreach ($transactions as $transaction)				//Loop the transactions
-					if (in_array($transaction->type, $types))		//If the type is valid
-						array_push($array, $transaction);			//Buffer it
-			
-			else return false;	//Problem retrieving transactions
-			return $array;		//Return the buffer
+			if ($transactions = self::transactions($number, $pair)){
+				//var_dump($transactions);
+				foreach ($transactions as $transaction)
+					//If the type is valid
+					if (in_array($transaction->type, $types))
+						//Buffer it
+						array_push($array, $transaction);
+			}
+			//If we had a problem retrieving transactions
+			else return false;
+			//Return the buffer
+			return $array;
 		}
 		public static function transactions_type($type, $number=50, $pair='all') {
 		//Return up to 50 transactions of $type
@@ -457,7 +463,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 				case 'H12': return 12*60*60;
 				case 'D' : return 24*60*60;
 				case 'W' : return 7*24*60*60;
-				case 'M' : return 30*24*60*60;
+				case 'M' : return (365*24*60*60)/12;
 			}
 		}
 		
