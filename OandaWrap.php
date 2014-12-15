@@ -303,20 +303,36 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 			return self::instrument($pair)->pip;
 		}
 		
+		
 		//////////////////////////////////////////////////////////////////////////////////
 		//
 		//	CALCULATOR FUNCTIONS
 		//
 		//////////////////////////////////////////////////////////////////////////////////
 		
-		public static function calc_convert($pair, $amount, $homeId) {
-		//Convert $amount of $pair
+		public static function convert($pairHome, $pairAway, $amount) {
+		//Convert $amount of $pairHome to $pairAway
+			if ($pair = self::instrument_name($pairHome, $pairAway)) {
+				if ($price 		= self::price($pair)) {
+					//Use the $baseIndex currency of $pair (AUD_JPY = Aud or Jpy)
+					$reverse	= (strpos($pair, $pairHome) > strpos($pair, '_') ? FALSE : TRUE);
+					
+					//Which way to convert 
+					return ($reverse ? $amount * $price->ask : $amount / $price->ask);
+				}
+			}
+			return FALSE;
+		}
+		public static function convert_pair($pair, $amount, $home) {
+		//Convert $amount of $pair from $home 
+		//	i.e. OandaWrap::convert_pair('EUR_USD', 500, 'EUR'); Converts 500 EUR to USD
+		//	i.e. OandaWrap::convert_pair('EUR_USD', 500, 'USD'); Converts 500 USD to EUR
 			if ($price 		= self::price($pair)) {
-				//Use the $baseIndex currency of $pair (AUD_JPY = Aud or Jpy)
-				$reverse	= (strpos($pair, $homeId) > strpos($pair, '_') ? FALSE : TRUE);
-				
-				//Which way to convert 
-				return ($reverse ? $amount * $price->ask : $amount / $price->ask);
+				$pairNames  = self::instrument_split($pair);
+				$homeFirst  = $home == $pairNames[0] ? TRUE : FALSE;
+				return ($homeFirst ? 
+						self::convert($pairNames[0], $pairNames[1], $amount) :
+						self::convert($pairNames[1], $pairNames[0], $amount));
 			}
 			return FALSE;
 		}
@@ -326,10 +342,10 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 			return round(($open - $close)/self::instrument_pip($pair), 2);
 		}
 		
-		public static function calc_pip_price($pair, $size) {
+		public static function calc_pip_price($pair, $size, $side=1) {
 		//Return the cost of a single pip of $pair when $size is used
-			if ($price = self::price(self::nav_instrument_name($pair, 1)))
-				return (self::instrument_pip($pair)/$price->ask)*$size;
+			if ($price = self::price(self::nav_instrument_name($pair, 1))) 
+				return (self::instrument_pip($pair)/($side ? $price->bid : $price->ask))*$size;
 			return FALSE;
 		}
 		
@@ -356,7 +372,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		
 		public static function nav_size_percent($pair, $percent, $leverage = 50) {
 		//Return the value of a percentage of the NAV (Net account value)
-			$baseSize	= self::calc_convert(self::nav_instrument_name($pair), self::$account->balance*($percent/100), 'CHF');
+			$baseSize	= self::convert_pair(self::nav_instrument_name($pair), self::$account->balance*($percent/100), self::$account->accountCurrency);
 			//Calculate our leveraged size
 			return floor($baseSize * $leverage);
 		}
@@ -369,23 +385,11 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 			return floor(($leverage/50)*$baseSize);
 		}
 		
-		public static function nav_pnl($pair, $dollarValue=FALSE) {
-		//Return the pnl for $pair, if $dollarValue is set TRUE, return in base currency.
-			$position		= self::position($pair);
-			if (isset($position->units) && $price = self::price($pair)) {
-				$side		= ($position->side == 'buy' ? 1 : -1);
-				//Buyback across the spread
-				$price		= ($side == 1 ? $price->bid : $price->ask);
-				//Pip decimal for our pair (Invert if short)
-				$pips		= self::calc_pips($pair, $price, $position->avgPrice)*$side;
-				//Calculate the pnl and convert to our base currency
-				$pnl 		= $pips * self::calc_pip_price($pair, $position->units);
-				
-				//If we asked for dollarValue, else percentage returned as 1/100
-				return round(($dollarValue ? $pnl : ($pnl / self::$account->balance)*100), 2); 
-			}
-			else 
-				return FALSE;
+		public static function nav_pnl($dollarValue=FALSE) {
+		//Return the pnl for account, if $dollarValue is set TRUE, return in base currency, else as %.
+			if ($dollarValue == FALSE)
+				return round((self::$account->unrealizedPl / self::$account->balance) * 100, 2);
+			return (isset(self::$account) ? self::$account->unrealizedPl : FALSE);
 		}
 		
 		//////////////////////////////////////////////////////////////////////////////////
@@ -401,7 +405,6 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		public static function transactions($number=50, $pair='all') {
 		//Return an object with all transactions (max 50)
 			$transactions = self::get(self::transaction_index(), array('count' => $number, 'instrument' => $pair));
-			//var_dump($transactions);
 			return (isset($transactions->transactions) ? $transactions->transactions : FALSE);
 		}
 		
@@ -410,7 +413,6 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 			$array = array(); 
 			//Return all transactions
 			if ($transactions = self::transactions($number, $pair)) {
-				//var_dump($transactions);
 				foreach ($transactions as $transaction)
 					//If the type is valid
 					if (in_array($transaction->type, $types))
