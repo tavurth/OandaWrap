@@ -600,7 +600,10 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		}
 		public static function trade_pair($pair, $number=50) {
 		//Return an object with all the trades on $pair
-			return self::get(self::trade_index(), array('instrument' => $pair, 'count' => $number));
+			$trades = self::get(self::trade_index(), array('instrument' => $pair, 'count' => $number));
+			if (isset($trades->trades))
+				return $trades->trades;
+			return array();
 		}
 		public static function trade_close($tradeId) {
 		//Close trade referenced by $tradeId
@@ -637,7 +640,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		public static function trade_set_all($pair, $options) {
 		//Modify all trades on $pair
 			$result = array();
-			foreach (self::trade_pair($pair)->trades as $trade)
+			foreach (self::trade_pair($pair) as $trade)
 				if (isset($trade->id))
 					array_push($result, self::set_('trade', $trade->id, $options));
 			return $result;
