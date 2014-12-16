@@ -24,18 +24,11 @@ if (defined('TAVURTH_OANDAWRAP_EXAMPLE_SETUP') == FALSE) {
 	
 	//Include OandaWrap
 	require '../OandaWrap.php';
-	
-	//apiKey can be found inside your account information 
-	//screen and requires a one time generation
-	$apiKey 	= 'REPLACE THIS TEXT';
-	
-	//AccountId is the Id of one of your accounts
-	//To later change this use OandaWrap::nav_account_set($accountId)
-	$accountId 	= 'REPLACE THIS TEXT';
-	
+	require 'config.php';
+
 	//Check to see that OandaWrap is setup correctly.
 	//Arg1 can be 'Demo', 'Live', or Sandbox;
-	if (OandaWrap::setup('Sandbox', $apiKey, $accountId) == FALSE) {
+	if (OandaWrap::setup('Demo', $apiKey, $accountId) == FALSE) {
 		echo 'OandaWrap failed to initialize, ';
 		echo 'contact will.whitty.arbeit@gmail.com to submit a bug report.';
 		exit(1);
@@ -48,7 +41,7 @@ if (defined('TAVURTH_OANDAWRAP_EXAMPLE_SETUP') == FALSE) {
 	//Style our body
 	echo '<style> 
 	
-		body { font-size: 18; color:#222222; } 
+		body { font-size: 18px; color:#222222; }
 		p { position:relative; left:10%; margin: 0; padding: 0; } 
 		p.indent { position:relative; left:30%; }
 	
@@ -58,13 +51,14 @@ if (defined('TAVURTH_OANDAWRAP_EXAMPLE_SETUP') == FALSE) {
 	
 	//Save the requested pairs as an array
 	$pairs = array('EUR_USD', 'EUR_AUD', 'EUR_JPY', 'EUR_CAD');
-	
+
 	//Loop through the array
 	foreach ($pairs as $pair)	//Check for valid quote
 		if ($quote = OandaWrap::price($pair))
 			echo '<p>Price of ' . $pair . ' is: </p><p class="indent"> ' .$quote->bid . ' => ' . $quote->ask . '</p>';
 	
 	echo'<p><h2>Call to OandaWrap::price(\'EUR_USD\') returns:</h2></p><p>';
+	var_dump(OandaWrap::price('EUR_USD'));
 	//Display all information relating to a returned quote object
 	foreach (OandaWrap::price('EUR_USD') as $key => $value)
 		echo $key . ' => ' . $value . '<br>';

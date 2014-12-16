@@ -150,8 +150,9 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 								
 			if (isset(self::$apiKey)) {    								//Add our login hash
 				array_push($headers, 'Authorization: Bearer ' . self::$apiKey);
-				curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, true);			//Verify Oanda
-				curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);			//Verify Me
+				curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);			//Verify Oanda
+				// TODO: get CA cert for this to be able to set to true
+				curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);			//Verify Me
 			}
 			//Set the sockets headers
 			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
@@ -173,8 +174,12 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 			$ch = self::socket();
 					
 			curl_setopt($ch, CURLOPT_URL, //Url setup
-				self::$baseUrl . $index . ($query_data ? '?' : '') . ($query_data ? http_build_query($query_data) : '')); 
-			$data = json_decode(self::data_decode(curl_exec($ch))); 		//Launch and store decrypted data
+				self::$baseUrl . $index . ($query_data ? '?' : '') . ($query_data ? http_build_query($query_data) : ''));
+			if( ! $result = curl_exec($ch))
+			{
+				trigger_error(curl_error($ch));
+			}
+			$data = json_decode(self::data_decode($result)); 		//Launch and store decrypted data
 			return $data;
 		}
 		protected static function post($index, $query_data) {
