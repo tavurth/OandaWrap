@@ -486,6 +486,10 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		//Return the Oanda compatible timestamp of time() + $hours
 			return self::expiry_min($hours*60);
 		}
+		public static function expiry_day($days=1) {
+		//Return the Oanda compatible timestamp of time() + $days
+			return self::expiry_hour($days*24);
+		}
 		
 		//////////////////////////////////////////////////////////////////////////////////
 		//
@@ -679,7 +683,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		//Open a new limit order
 			return self::order_open_extended($side, $units, $pair, 'limit', $price, $expiry, $rest);
 		}
-		public static function stop($side, $units, $pair, $price, $rest = FALSE) {
+		public static function stop($side, $units, $pair, $price, $expiry, $rest = FALSE) {
 		//Open a new stop order
 			return self::order_open_extended($side, $units, $pair, 'stop', $price, $expiry, $rest);
 		}
@@ -702,7 +706,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		//Buy limit with expiry
 			return self::limit('buy', $units, $pair, $price, $expiry, $rest);
 		}
-		public static function buy_stop($units, $pair, $price, $rest = FALSE) {
+		public static function buy_stop($units, $pair, $price, $expiry, $rest = FALSE) {
 		//Buy stop with expiry
 			return self::stop('buy', $units, $pair, $price, $expiry, $rest);
 		}
@@ -736,11 +740,11 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		//Sell @ market
 			return self::market('sell', $units, $pair, $rest);
 		}
-		public static function sell_limit($units, $pair, $price, $rest = FALSE) {
+		public static function sell_limit($units, $pair, $price, $expiry, $rest = FALSE) {
 		//Sell limit with expiry
 			return self::limit('sell', $units, $pair, $price, $expiry, $rest);
 		}
-		public static function sell_stop($units, $pair, $price, $rest = FALSE) {
+		public static function sell_stop($units, $pair, $price, $expiry, $rest = FALSE) {
 		//Sell stop with expiry
 			return self::stop('sell', $units, $pair, $price, $expiry, $rest);
 		}
