@@ -533,7 +533,8 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		}
 		public static function order_pair($pair, $number=50) {
 		//Get an object with all the orders for $pair
-			return self::get(self::order_index(), array('instrument' => $pair, 'count' => $number));
+			$orders = self::get(self::order_index(), array('instrument' => $pair, 'count' => $number));
+			return (isset($orders->orders) ? $orders->orders : array());
 		}
 		public static function order_open($side, $units, $pair, $type, $rest = FALSE) {
 		//Open a new order
@@ -549,7 +550,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		}
 		public static function order_close_all($pair) {
 		//Close all orders in $pair
-			foreach (self::order_pair($pair)->orders as $order)
+			foreach (self::order_pair($pair) as $order)
 				if (isset($order->id))
 					self::delete(self::order_index() . $order->id);
 		}
@@ -587,7 +588,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		
 		public static function order_set_all($pair, $options) {
 		//Modify all orders on $pair
-			foreach (self::order_pair($pair)->orders as $order)
+			foreach (self::order_pair($pair) as $order)
 				if (isset($order->id))
 					self::set_('order', $order->id, $options);
 		}
