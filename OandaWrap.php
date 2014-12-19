@@ -48,6 +48,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		protected static $apiKey;
 		protected static $instruments;
 		protected static $socket;
+		protected static $checkssl = FALSE;
 		
 		//////////////////////////////////////////////////////////////////////////////////
 		//
@@ -150,9 +151,8 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 								
 			if (isset(self::$apiKey)) {    								//Add our login hash
 				array_push($headers, 'Authorization: Bearer ' . self::$apiKey);
-				curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);			//Verify Oanda
-				// TODO: get CA cert for this to be able to set to true
-				curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);			//Verify Me
+				curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, self::$checkssl);			//Verify Oanda
+				curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, self::$checkssl);			//Verify Me
 			}
 			//Set the sockets headers
 			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
@@ -174,12 +174,12 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 			$ch = self::socket();
 					
 			curl_setopt($ch, CURLOPT_URL, //Url setup
-				self::$baseUrl . $index . ($query_data ? '?' : '') . ($query_data ? http_build_query($query_data) : ''));
-			if( ! $result = curl_exec($ch))
-			{
-				trigger_error(curl_error($ch));
-			}
-			$data = json_decode(self::data_decode($result)); 		//Launch and store decrypted data
+				self::$baseUrl . $index . ($query_data ? '?' : '') . ($query_data ? http_build_query($query_data) : '')); 
+			  if( ! $returndata = curl_exec($ch))
+			  {
+			  	trigger_error(curl_error($ch));
+			  }
+				$data = json_decode(self::data_decode($returndata)); 		//Launch and store decrypted data
 			return $data;
 		}
 		protected static function post($index, $query_data) {
@@ -189,7 +189,11 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 			curl_setopt($ch, CURLOPT_URL, self::$baseUrl . $index);		//Url setup
 			curl_setopt($ch, CURLOPT_POST, 1);							//Tell curl we want to POST
 			curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($query_data));  //Include the POST data
-			return json_decode(self::data_decode(curl_exec($ch))); 		//Launch and return decrypted data
+			if( ! $returndata = curl_exec($ch))
+			{
+				trigger_error(curl_error($ch));
+			}
+			return json_decode(self::data_decode($returndata)); 		//Launch and return decrypted data
 		}
 		protected static function patch($index, $query_data) {
 		//Send a PATCH request to Oanda
@@ -817,9 +821,12 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 			//Retrieve our candles
 			$candles = self::get('candles', array_merge(array('instrument' => $pair, 'granularity' => strtoupper($gran)), $rest));
 			//Check the object
-			if (isset($candles->candles) == FALSE)
+			if (isset($candles->candles) == FALSE){
+				var_dump($candles);
 				return FALSE;
-			
+			}
+
+
 			//Convert from microseconds and return
 			return self::candles_times_to_seconds($candles);
 		}
