@@ -495,6 +495,10 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		//Return the Oanda compatible timestamp of time() + $hours
 			return self::expiry_min($hours*60);
 		}
+		public static function expiry_day($days=1) {
+		//Return the Oanda compatible timestamp of time() + $days
+			return self::expiry_hour($days*24);
+		}
 		
 		//////////////////////////////////////////////////////////////////////////////////
 		//
@@ -538,7 +542,8 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		}
 		public static function order_pair($pair, $number=50) {
 		//Get an object with all the orders for $pair
-			return self::get(self::order_index(), array('instrument' => $pair, 'count' => $number));
+			$orders = self::get(self::order_index(), array('instrument' => $pair, 'count' => $number));
+			return (isset($orders->orders) ? $orders->orders : array());
 		}
 		public static function order_open($side, $units, $pair, $type, $rest = FALSE) {
 		//Open a new order
@@ -554,7 +559,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		}
 		public static function order_close_all($pair) {
 		//Close all orders in $pair
-			foreach (self::order_pair($pair)->orders as $order)
+			foreach (self::order_pair($pair) as $order)
 				if (isset($order->id))
 					self::delete(self::order_index() . $order->id);
 		}
@@ -592,7 +597,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		
 		public static function order_set_all($pair, $options) {
 		//Modify all orders on $pair
-			foreach (self::order_pair($pair)->orders as $order)
+			foreach (self::order_pair($pair) as $order)
 				if (isset($order->id))
 					self::set_('order', $order->id, $options);
 		}
@@ -688,7 +693,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		//Open a new limit order
 			return self::order_open_extended($side, $units, $pair, 'limit', $price, $expiry, $rest);
 		}
-		public static function stop($side, $units, $pair, $price, $rest = FALSE) {
+		public static function stop($side, $units, $pair, $price, $expiry, $rest = FALSE) {
 		//Open a new stop order
 			return self::order_open_extended($side, $units, $pair, 'stop', $price, $expiry, $rest);
 		}
@@ -711,7 +716,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		//Buy limit with expiry
 			return self::limit('buy', $units, $pair, $price, $expiry, $rest);
 		}
-		public static function buy_stop($units, $pair, $price, $rest = FALSE) {
+		public static function buy_stop($units, $pair, $price, $expiry, $rest = FALSE) {
 		//Buy stop with expiry
 			return self::stop('buy', $units, $pair, $price, $expiry, $rest);
 		}
@@ -745,11 +750,11 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		//Sell @ market
 			return self::market('sell', $units, $pair, $rest);
 		}
-		public static function sell_limit($units, $pair, $price, $rest = FALSE) {
+		public static function sell_limit($units, $pair, $price, $expiry, $rest = FALSE) {
 		//Sell limit with expiry
 			return self::limit('sell', $units, $pair, $price, $expiry, $rest);
 		}
-		public static function sell_stop($units, $pair, $price, $rest = FALSE) {
+		public static function sell_stop($units, $pair, $price, $expiry, $rest = FALSE) {
 		//Sell stop with expiry
 			return self::stop('sell', $units, $pair, $price, $expiry, $rest);
 		}
