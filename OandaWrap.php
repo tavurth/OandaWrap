@@ -536,8 +536,12 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 			$orders = self::get(self::order_index(), array('instrument' => $pair, 'count' => $number));
 			return (isset($orders->orders) ? $orders->orders : array());
 		}
-		public static function order_open($side, $units, $pair, $type, $price, $expiry, $rest = FALSE) {
+		public static function order_open($side, $units, $pair, $type, $price=FALSE, $expiry=FALSE, $rest = FALSE) {
 		//Open a new order
+			//failure to provide expiry and price to limit or stop orders?
+			if ($type != 'market' && $price == FALSE || $expiry == FALSE)
+				return FALSE;
+			//Setup
 			$orderOptions = array(
 							'instrument' => $pair, 
 							'price' => $price, 
