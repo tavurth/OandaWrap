@@ -683,19 +683,19 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		
 		public static function market($side, $units, $pair, $rest = FALSE) {
 		//Open a new @ market order
-			return self::order_open($side, $units, $pair, 'market', $rest);
+			return self::order_open($side, $units, $pair, 'market', FALSE, FALSE, $rest);
 		}
 		public static function limit($side, $units, $pair, $price, $expiry, $rest = FALSE) {
 		//Open a new limit order
-			return self::order_open_extended($side, $units, $pair, 'limit', $price, $expiry, $rest);
+			return self::order_open($side, $units, $pair, 'limit', $price, $expiry, $rest);
 		}
 		public static function stop($side, $units, $pair, $price, $expiry, $rest = FALSE) {
 		//Open a new stop order
-			return self::order_open_extended($side, $units, $pair, 'stop', $price, $expiry, $rest);
+			return self::order_open($side, $units, $pair, 'stop', $price, $expiry, $rest);
 		}
 		public static function mit($side, $units, $pair, $price, $expiry, $rest = FALSE) {
 		//Open a new marketIfTouched order
-			return self::order_open_extended($side, $units, $pair, 'marketIfTouched', $price, $expiry, $rest);
+			return self::order_open($side, $units, $pair, 'marketIfTouched', $price, $expiry, $rest);
 		}
 		
 		//////////////////////////////////////////////////////////////////////////////////
@@ -706,7 +706,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		
 		public static function buy_market($units, $pair, $rest = FALSE) {
 		//Buy @ market
-			return self::market('buy', $units, $pair, $rest);
+			return self::market('buy', $units, $pair, FALSE, FALSE, $rest);
 		}
 		public static function buy_limit($units, $pair, $price, $expiry, $rest = FALSE) {
 		//Buy limit with expiry
