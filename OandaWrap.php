@@ -541,7 +541,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 			//failure to provide expiry and price to limit or stop orders?
 			if ($type != 'market' && $price == FALSE || $expiry == FALSE)
 				return FALSE;
-			//Setup
+			//Setupw
 			$orderOptions = array(
 							'instrument' => $pair, 
 							'price' => $price, 
@@ -561,7 +561,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		//Close all orders in $pair
 			foreach (self::order_pair($pair) as $order)
 				if (isset($order->id))
-					self::delete(self::order_index() . $order->id);
+					self::order_close($order->id);
 		}
 		
 		//////////////////////////////////////////////////////////////////////////////////
