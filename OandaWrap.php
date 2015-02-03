@@ -538,18 +538,21 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		}
 		public static function order_open($side, $units, $pair, $type, $price=FALSE, $expiry=FALSE, $rest = FALSE) {
 		//Open a new order
+			
 			//failure to provide expiry and price to limit or stop orders?
-			if ($type != 'market' && $price == FALSE || $expiry == FALSE)
+			if ($type != 'market' && ($price == FALSE || $expiry == FALSE))
 				return FALSE;
-			//Setupw
+			
+			//Setup options
 			$orderOptions = array(
 							'instrument' => $pair, 
-							'price' => $price, 
-							'expiry' => $expiry, 
 							'units' => $units, 
 							'side' => $side, 
 							'type' => $type
 						);
+			
+			if ($price) $orderOptions['price'] = $price;
+			if ($expiry) $orderOptions['expiry'] = $expiry;
 			
 			return self::post(self::order_index(), array_merge($orderOptions, (is_array($rest) ? $rest : array())));
 		}
@@ -572,7 +575,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		
 		public static function order_set($orderId, $options) {
 		//Modify the parameters of an order
-			return self::patch(self::order_index() . $orderId, $options);
+			return self::patch(self::order_index()  . '/' . $orderId, $options);
 		}
 		public static function order_set_stop($id, $price) {
 		//Set the stopLoss of an order
