@@ -256,11 +256,11 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 			if (empty(self::$instruments))
 				self::$instruments = self::get('instruments', array('accountId' => self::$account->accountId));
 			//If fetch failed return an empty array
-			return (self::$instruments ? self::$instruments : array());
+			return (self::$instruments ? self::$instruments->instruments : array());
 		}
 		public static function instrument($pair) {
 		//Return instrument for named $pair
-			foreach(self::instruments()->instruments as $instrument)
+			foreach(self::instruments() as $instrument)
 				if ($pair == $instrument->instrument)
 					return $instrument;
 			return false;
@@ -268,7 +268,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		public static function instrument_pairs($currency) {
 		//Return instruments for that correspond to $currency
 			$pairs = array();
-			foreach(self::instruments()->instruments as $instrument) {
+			foreach(self::instruments() as $instrument) {
 				if (strpos($instrument->instrument, $currency))
 					array_push($pairs, $instrument->instrument);
 			}
@@ -536,13 +536,18 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 			$orders = self::get(self::order_index(), array('instrument' => $pair, 'count' => $number));
 			return (isset($orders->orders) ? $orders->orders : array());
 		}
-		public static function order_open($side, $units, $pair, $type, $rest = FALSE) {
+		public static function order_open($side, $units, $pair, $type, $price, $expiry, $rest = FALSE) {
 		//Open a new order
-			return self::post(self::order_index(), array_merge(array('instrument' => $pair, 'units' => $units, 'side' => $side, 'type' => $type), (is_array($rest) ? $rest : array())));
-		}
-		public static function order_open_extended($side, $units, $pair, $type, $price, $expiry, $rest = FALSE) {
-		//Open a new order, expanded for simplified limit order processing
-			return self::order_open($side, $units, $pair, $type, array_merge(array('price' => $price, 'expiry' => $expiry), (is_array($rest) ? $rest : array())));
+			$orderOptions = array(
+							'instrument' => $pair, 
+							'price' => $price, 
+							'expiry' => $expiry, 
+							'units' => $units, 
+							'side' => $side, 
+							'type' => $type
+						);
+			
+			return self::post(self::order_index(), array_merge($orderOptions, (is_array($rest) ? $rest : array())));
 		}
 		public static function order_close($orderId) {
 		//Close an order by Id
@@ -661,7 +666,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		//Return an object with the information for a single $pairs position
 			return self::get(self::position_index() . $pair);
 		}
-		public static function position_all() {
+		public static function positions() {
 		//Return an object with all the positions for the account
 			return self::get(self::position_index());
 		}
@@ -815,7 +820,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 				$rest['count'] = 1;
 			
 			//Retrieve our candles
-			$candles = self::get('candles', array_merge(array('instrument' => $pair, 'granularity' => strtoupper($gran)), $rest));
+			$candles = self::get('candles', array_merge(array('candleFormat' => 'midpoint', 'instrument' => $pair, 'granularity' => strtoupper($gran)), $rest));
 			//Check the object
 			if (isset($candles->candles) == FALSE)
 				return FALSE;
