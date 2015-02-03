@@ -164,7 +164,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		}
 		protected static function socket() {
 		//Return our active socket for reuse
-			//if (isset(self::$socket) == FALSE)
+			if (isset(self::$socket) == FALSE)
 				self::configure(self::$socket = curl_init());
 			return self::$socket;
 		}
