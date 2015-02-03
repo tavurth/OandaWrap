@@ -174,7 +174,8 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 			
 			curl_setopt($ch, CURLOPT_HTTPGET, 1);
 			curl_setopt($ch, CURLOPT_URL, //Url setup
-				self::$baseUrl . $index . ($query_data ? '?' : '') . ($query_data ? http_build_query($query_data) : '')); 
+				self::$baseUrl . $index . ($query_data ? '?' . http_build_query($query_data) : '')); 
+			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');			//GET request setup
 			return json_decode(self::data_decode(curl_exec($ch))); 		//Launch and store decrypted data
 		}
 		protected static function post($index, $query_data) {
@@ -183,6 +184,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 																	
 			curl_setopt($ch, CURLOPT_URL, self::$baseUrl . $index);		//Url setup
 			curl_setopt($ch, CURLOPT_POST, 1);							//Tell curl we want to POST
+			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');			//POST request setup
 			curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($query_data));  //Include the POST data
 			return json_decode(self::data_decode(curl_exec($ch))); 		//Launch and return decrypted data
 		}
