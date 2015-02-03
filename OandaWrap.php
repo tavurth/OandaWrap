@@ -125,7 +125,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		}
 		protected static function order_index() {
 		//Return a formatted string for more concise code
-			return self::index() . 'orders/';
+			return self::index() . 'orders';
 		}
 		protected static function transaction_index() {
 		//Return a formatted string for more concise code
@@ -147,11 +147,11 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 			$headers = array('X-Accept-Datetime-Format: UNIX',			//Milliseconds since epoch
 								'Accept-Encoding: gzip, deflate',		//Compress data
 								'Connection: Keep-Alive');				//Persistant http connection
-								
 			if (isset(self::$apiKey)) {    								//Add our login hash
 				array_push($headers, 'Authorization: Bearer ' . self::$apiKey);
 				curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, true);			//Verify Oanda
 				curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);			//Verify Me
+	
 			}
 			//Set the sockets headers
 			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
@@ -164,18 +164,18 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		}
 		protected static function socket() {
 		//Return our active socket for reuse
-			if (isset(self::$socket) == FALSE)
+			//if (isset(self::$socket) == FALSE)
 				self::configure(self::$socket = curl_init());
 			return self::$socket;
 		}
 		protected static function get($index, $query_data=FALSE) {
 		//Send a GET request to Oanda											
 			$ch = self::socket();
-					
+			
+			curl_setopt($ch, CURLOPT_HTTPGET, 1);
 			curl_setopt($ch, CURLOPT_URL, //Url setup
 				self::$baseUrl . $index . ($query_data ? '?' : '') . ($query_data ? http_build_query($query_data) : '')); 
-			$data = json_decode(self::data_decode(curl_exec($ch))); 		//Launch and store decrypted data
-			return $data;
+			return json_decode(self::data_decode(curl_exec($ch))); 		//Launch and store decrypted data
 		}
 		protected static function post($index, $query_data) {
 		//Send a POST request to Oanda
@@ -529,7 +529,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		
 		public static function order($orderId) {
 		//Return an object with the information about $orderId
-			return self::get(self::order_index() . $orderId);
+			return self::get(self::order_index() . '/' . $orderId);
 		}
 		public static function order_pair($pair, $number=50) {
 		//Get an object with all the orders for $pair
@@ -551,7 +551,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		}
 		public static function order_close($orderId) {
 		//Close an order by Id
-			return self::delete(self::order_index() . $orderId);
+			return self::delete(self::order_index() . '/' . $orderId);
 		}
 		public static function order_close_all($pair) {
 		//Close all orders in $pair
