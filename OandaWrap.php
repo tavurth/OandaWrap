@@ -184,7 +184,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 																	
 			curl_setopt($ch, CURLOPT_URL, self::$baseUrl . $index);		//Url setup
 			curl_setopt($ch, CURLOPT_POST, 1);							//Tell curl we want to POST
-			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');			//POST request setup
+			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');			//POST request setup
 			curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($query_data));  //Include the POST data
 			return json_decode(self::data_decode(curl_exec($ch))); 		//Launch and return decrypted data
 		}
