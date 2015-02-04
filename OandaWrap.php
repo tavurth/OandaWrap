@@ -97,6 +97,11 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 				//Set the API key
 				self::$apiKey  = $apiKey;
 				self::$account = self::account($accountId);
+				
+				if (isset(self::$account->code)) {
+					echo self::$account->message;
+					return FALSE;
+				}
 			}
 			//Completed
 			return TRUE;
@@ -104,7 +109,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		
 		public static function setup($server=FALSE, $apiKey=FALSE, $accountId=FALSE) {
 		//Setup our enviornment variables
-			if (isset(self::$account))
+			if (isset(self::$account) && isset(self::$account->accountId))
 				if (self::$account->id == $accountId)
 					return;
 			//'Live', 'Demo' or the default 'Sandbox' servers.
@@ -123,7 +128,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		
 		protected static function index() {
 		//Return a formatted string for more concise code
-			if (isset(self::$account->accountId))
+			if (isset(self::$account) && isset(self::$account->accountId))
 				return 'accounts/' . self::$account->accountId . '/';
 			return 'accounts/0/';
 		}
@@ -163,7 +168,6 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 				array_push($headers, 'Authorization: Bearer ' . self::$apiKey);
 				curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, true);			//Verify Oanda
 				curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);			//Verify Me
-	
 			}
 			//Set the sockets headers
 			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
@@ -193,7 +197,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		protected static function post($index, $query_data) {
 		//Send a POST request to Oanda
 			$ch = self::socket();
-																	
+			
 			curl_setopt($ch, CURLOPT_URL, self::$baseUrl . $index);		//Url setup
 			curl_setopt($ch, CURLOPT_POST, 1);							//Tell curl we want to POST
 			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');			//POST request setup
