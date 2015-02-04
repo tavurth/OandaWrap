@@ -66,10 +66,10 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 			echo '<pre>' . self::format_string($var) . '</pre>';
 		}
 		
-		protected static function check_name($name, $printValue, $verbose=TRUE) {
+		protected static function check_name($name, $printValue=FALSE, $verbose=TRUE) {
 		//Check if an argument was correctly passed.
-			if (!isset($name) || $name === FALSE) {	//Failure
-				if ($verbose)
+			if (!isset($name) || $name === FALSE || empty($name)) {	//Failure
+				if ($verbose && $printValue !== FALSE)
 					echo $printValue . '<br>';
 				return FALSE;
 			}
@@ -85,10 +85,6 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 			
 			//Checking our login details
 			if (strpos($baseUrl, 'https') !== FALSE || strpos($baseUrl, 'fxpractice') !== FALSE) {
-			
-				//Check that we have specified an accountId
-				if (! self::check_name($accountId, 'Invalid accountId: ' . $accountId))
-					return FALSE;
 				
 				//Check that we have specified an API key
 				if (! self::check_name($apiKey, 'Must provide API key for ' . $baseUrl . ' server.'))
@@ -96,7 +92,15 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 				
 				//Set the API key
 				self::$apiKey  = $apiKey;
-				self::$account = self::account($accountId);
+				
+				//Check that we have specified an accountId
+				if (! self::check_name($accountId)) {
+					if (! self::check_name(($accounts = self::accounts()), 'No valid accounts for API key.'))
+						return FALSE;
+					self::$account = $accounts[0];
+				
+				//else if we passed an accountId
+				} else self::$account = self::account($accountId);
 				
 				if (isset(self::$account->code)) {
 					echo self::$account->message;
@@ -244,9 +248,9 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 			return self::get('accounts/' . $accountId);
 		}
 		
-		public static function accounts($username) {
+		public static function accounts() {
 		//Return an array of the accounts for $username 
-			$accounts = self::get('accounts', array('username' => $username));
+			$accounts = self::get('accounts');
 			return (isset($accounts->accounts) ? $accounts->accounts : array());
 		}
 		
