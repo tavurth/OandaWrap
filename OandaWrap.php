@@ -556,7 +556,11 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 			if ($price) $orderOptions['price'] = $price;
 			if ($expiry) $orderOptions['expiry'] = $expiry;
 			
-			return self::post(self::order_index(), array_merge($orderOptions, (is_array($rest) ? $rest : array())));
+			if (is_array($rest))
+				foreach ($rest as $key => $value)
+					$orderOptions[$key] = $value;
+			
+			return self::post(self::order_index(), $orderOptions);
 		}
 		public static function order_close($orderId) {
 		//Close an order by Id
@@ -715,7 +719,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		
 		public static function buy_market($units, $pair, $rest = FALSE) {
 		//Buy @ market
-			return self::market('buy', $units, $pair, FALSE, FALSE, $rest);
+			return self::market('buy', $units, $pair, $rest);
 		}
 		public static function buy_limit($units, $pair, $price, $expiry, $rest = FALSE) {
 		//Buy limit with expiry
