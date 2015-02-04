@@ -55,6 +55,17 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		//
 		//////////////////////////////////////////////////////////////////////////////////
 		
+		public static function format_string($var) {
+		//Format a class to html code
+			ob_start(); print_r($var); $varString = ob_get_contents(); ob_clean();
+			return str_replace(str_split("\n()"), str_split(" {}"), nl2br($varString, TRUE));
+		}
+		
+		public static function format($var) {
+		//Format a class to HTML code and echo the output in human readable format
+			echo '<pre>' . self::format_string($var) . '</pre>';
+		}
+		
 		protected static function check_name($name, $printValue, $verbose=TRUE) {
 		//Check if an argument was correctly passed.
 			if (!isset($name) || $name === FALSE) {	//Failure
