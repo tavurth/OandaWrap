@@ -75,11 +75,11 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 			//Checking our login details
 			if (strpos($baseUrl, 'https') !== FALSE || strpos($baseUrl, 'fxpractice') !== FALSE) {
 				//Check that we have specified an accountId
-				if (! self::check_name($accountId, 'Invalid $baseUrl accountId: $accountId.'))
+				if (! self::check_name($accountId, 'Invalid $baseUrl accountId: ' . $accountId))
 					return FALSE;
 				
 				//Check that we have specified an API key
-				if (! self::check_name($apiKey, 'Must provide API key for $baseUrl server.'))
+				if (! self::check_name($apiKey, 'Must provide API key for ' . $baseUrl . ' server.'))
 					return FALSE;
 				
 				//Set the API key
@@ -104,7 +104,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 				case 'Sandbox':
 					return self::setup_account('http://api-sandbox.oanda.com/v1/');
 				default:
-					echo 'User must select: \'Live\', \'Demo\', or \'Sandbox\' server for OandaWrap setup.';
+					echo 'User must select: "Live", "Demo", or "Sandbox" server for OandaWrap setup.';
 					return FALSE;
 			}
 		}
