@@ -69,13 +69,14 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		protected static function setup_account($baseUrl, $apiKey = FALSE, $accountId = FALSE) {
 		//Generic account setup program, prints out errors in the html if incomplete
 			//Set the url
-			
-			self::$instruments = array();
 			self::$baseUrl = $baseUrl;
+			self::$instruments = array();
+			
 			//Checking our login details
 			if (strpos($baseUrl, 'https') !== FALSE || strpos($baseUrl, 'fxpractice') !== FALSE) {
+			
 				//Check that we have specified an accountId
-				if (! self::check_name($accountId, 'Invalid $baseUrl accountId: ' . $accountId))
+				if (! self::check_name($accountId, 'Invalid accountId: ' . $accountId))
 					return FALSE;
 				
 				//Check that we have specified an API key
@@ -83,7 +84,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 					return FALSE;
 				
 				//Set the API key
-				self::$apiKey = $apiKey;
+				self::$apiKey  = $apiKey;
 				self::$account = self::account($accountId);
 			}
 			//Completed
@@ -104,7 +105,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 				case 'Sandbox':
 					return self::setup_account('http://api-sandbox.oanda.com/v1/');
 				default:
-					echo 'User must select: "Live", "Demo", or "Sandbox" server for OandaWrap setup.';
+					echo 'User must specify: "Live", "Demo", or "Sandbox" server for OandaWrap setup.';
 					return FALSE;
 			}
 		}
@@ -547,11 +548,11 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 			
 			//Setup options
 			$orderOptions = array(
-							'instrument' => $pair, 
-							'units' => $units, 
-							'side' => $side, 
-							'type' => $type
-						);
+						'instrument' => $pair, 
+						'units' => $units, 
+						'side' => $side, 
+						'type' => $type
+					);
 			
 			if ($price) $orderOptions['price'] = $price;
 			if ($expiry) $orderOptions['expiry'] = $expiry;
@@ -816,7 +817,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		}
 		
 		public static function price_time($pair, $date) {
-		//Wrapper, return the current price of '$pair'
+		//Wrapper, return the price of '$pair' at $date which is a string such as "20:15 5th november 2012"
 			$candlesDated = self::candles_time($pair, 'S5', ($time=strtotime($date)), $time+10);
 			if (count($candlesDated) > 0)
 				return $candlesDated[0];
