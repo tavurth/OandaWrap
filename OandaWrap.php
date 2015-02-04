@@ -104,7 +104,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		
 		public static function setup($server=FALSE, $apiKey=FALSE, $accountId=FALSE) {
 		//Setup our enviornment variables
-			if (isset(self::$account->id))
+			if (isset(self::$account))
 				if (self::$account->id == $accountId)
 					return;
 			//'Live', 'Demo' or the default 'Sandbox' servers.
