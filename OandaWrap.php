@@ -102,6 +102,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 				//else if we passed an accountId
 				} else self::$account = self::account($accountId);
 				
+				//If we recieved an incomplete account
 				if (isset(self::$account->code)) {
 					echo self::$account->message;
 					return FALSE;
