@@ -265,7 +265,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 						
 					case 'events':  //Event stream
 						if (empty($options))
-							self::stream('FAILURE RECURSE', FALSE, FALSE);
+							return self::stream('FAILURE RECURSE', FALSE, FALSE);
 						
 						//Url options setup
 						$streamUrl .= 'accountIds='. implode(',', $options); 
