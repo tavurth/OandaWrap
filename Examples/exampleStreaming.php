@@ -32,21 +32,17 @@ if (defined('TAVURTH_OANDAWRAP_EXAMPLE_STREAMING') == FALSE) {
 	//screen and requires a one time generation
 	$apiKey 	= 'REPLACE THIS TEXT';
 	
-	//AccountId is the Id of one of your accounts
-	//To later change this use OandaWrap::nav_account_set($accountId)
-	$accountId 	= 'REPLACE THIS TEXT';
-	
 	//Check to see that OandaWrap is setup correctly.
-	//Arg1 can be 'Demo', 'Live', or Sandbox;
-	if (OandaWrap::setup('Demo', $apiKey, $accountId) == FALSE) {
+	//Arg1 can be 'Demo', 'Live', or 'Sandbox';
+	if (OandaWrap::setup('Demo', $apiKey) == FALSE) {
 		echo 'OandaWrap failed to initialize, ';
 		echo 'contact will.whitty.arbeit@gmail.com to submit a bug report.';
 		exit(1);
 	}
 	
 	$callback = function ($jsonObject) {
-		OandaWrap::format($jsonObject);
-		if (FALSE /*TIME TO EXIT THE STREAM*/)
+		var_dump($jsonObject);
+		if (FALSE /* RETURN TRUE TO EXIT THE STREAM*/)
 			return TRUE;
 	};
 	
