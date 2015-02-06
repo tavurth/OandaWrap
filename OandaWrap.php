@@ -48,6 +48,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		protected static $apiKey;
 		protected static $instruments;
 		protected static $socket;
+		protected static $callback;
 		
 		//////////////////////////////////////////////////////////////////////////////////
 		//
@@ -111,6 +112,8 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 			if (isset(self::$account) && isset(self::$account->accountId))
 				if (self::$account->id == $accountId)
 					return;
+			
+			self::$callback = FALSE;
 			//'Live', 'Demo' or the default 'Sandbox' servers.
 			switch (ucfirst(strtolower($server))) { //Set all to lowercase except the first character
 				case 'Live':
@@ -221,15 +224,66 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');			//DELETE request setup
 			return json_decode(self::data_decode(curl_exec($ch))); 		//Launch and return decrypted data
 		}
-		public static function stream($url, $callback) {
+		private static function stream_callback($ch, $str) {
+		//Callback that then calls your function to process streaming data
+			
+			//If we return a non-null value (no return default) then wuit stream
+			if (call_user_func(self::$callback, json_decode($str)) === NULL)
+				return strlen($str);
+			return FALSE;
+		}
+		public static function stream($type, $callback,  $options=FALSE) {
 		//Open a stream to Oanda 
-		//$callback = function ($ch, $str) {
-					// /* { YOUR CODE } */
-					// return strlen($str); }
-			self::authenticate(($ch = curl_init()));
-			curl_setopt($ch, CURLOPT_URL, $url);						//Url setup
-			curl_setopt($ch, CURLOPT_WRITEFUNCTION, $callback);			//Our callback, called for every new data packet
-			return (curl_exec($ch));									//Launch
+		//$callback = function ($jsonObject) { /* { YOUR CODE } */;  }
+		//Example:
+		//OandaWrap::stream('events', function (event) { OandaWrap::format(event); }, array('ACCOUNT-ID' OR Omit for setup account));
+		//OandaWrap::stream('prices', function (event) { OandaWrap::format(event); }, array('EUR_USD'));
+			$type = strtolower($type);
+			
+			//Load the account from setup
+			if ($account = self::nav_account(TRUE)) {
+				
+				//Find the base of the url
+				$streamUrl = str_replace("api", 'stream', self::$baseUrl) . $type . '?';
+				
+				//Load the type of stream
+				switch ($type) {
+					case 'prices': //Tick stream
+						if (empty($options)) 
+							$options[] = $account->accountId;
+						
+						//Url options setup
+						$streamUrl .= 'accountId=' . $account->accountId . '&instruments='. implode(',', $options); 
+						break;
+						
+					case 'events':  //Event stream
+						if (empty($options))
+							self::stream('FAILURE RECURSE', FALSE, FALSE);
+						
+						//Url options setup
+						$streamUrl .= 'accountIds='. implode(',', $options); 
+						break;
+					
+					default:  //Failure
+						'Type must be "events" or "prices"<br>';
+						return FALSE;
+				}
+				
+				//Set the internal callback function
+				self::$callback = $callback;
+				
+				//Authenticate the socket to Oanda
+				self::authenticate(($ch = curl_init()));
+				
+				//Setup the stream
+				curl_setopt($ch, CURLOPT_URL, $streamUrl);
+				
+				//Our callback, called for every new data packet
+				curl_setopt($ch, CURLOPT_WRITEFUNCTION, 'self::stream_callback');
+				
+				//Execute
+				return (curl_exec($ch));
+			}
 		}
 		
 		//////////////////////////////////////////////////////////////////////////////////

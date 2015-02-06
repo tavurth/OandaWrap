@@ -119,12 +119,13 @@ limitations under the License.</pre><br><pre>
 <hr><pre><b>Function:<i>setup</i></b>(server=Optional, apiKey=Optional, accountId=Optional)
 <b>Usage:</b>
 		Setup our enviornment variables</pre></div><div id="stream">
-<hr><pre><b>Function:<i>stream</i></b>(url, callback)
+<hr><pre><b>Function:<i>stream</i></b>(type, callback,  options=Optional)
 <b>Usage:</b>
 		Open a stream to Oanda 
-		$callback = function ($ch, $str) {
-					 /* { YOUR CODE } */
-					 return strlen($str); }</pre></div><div id="account">
+		$callback = function ($jsonObject) { /* { YOUR CODE } */;  }
+		Example:
+		OandaWrap::stream('events', function (event) { OandaWrap::format(event); }, array('ACCOUNT-ID' OR Omit for setup account));
+		OandaWrap::stream('prices', function (event) { OandaWrap::format(event); }, array('EUR_USD'));</pre></div><div id="account">
 <hr><pre><b>Function:<i>account</i></b>(accountId)
 <b>Usage:</b>
 		Return the information for $accountId</pre></div><div id="accounts">
