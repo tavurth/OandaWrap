@@ -227,10 +227,10 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		private static function stream_callback($ch, $str) {
 		//Callback that then calls your function to process streaming data
 			
-			//If we return a non-null value (no return default) then wuit stream
+			//If we return a non-null value, quit the stream
 			if (call_user_func(self::$callback, json_decode($str)) === NULL)
 				return strlen($str);
-			return FALSE;
+			return TRUE;
 		}
 		public static function stream($type, $callback, $options=FALSE) {
 		//Open a stream to Oanda 
