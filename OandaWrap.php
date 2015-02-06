@@ -264,8 +264,8 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 						break;
 						
 					case 'events':  //Event stream
-						if (empty($options))
-							return self::stream('FAILURE RECURSE', FALSE, FALSE);
+						if (! self::check_name($options, 'Must provide array of AccountIds for events streaming.'))
+							return FALSE;
 						
 						//Url options setup
 						$streamUrl .= 'accountIds='. implode(',', $options); 
