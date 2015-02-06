@@ -100,16 +100,10 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 					self::$account = $accounts[0];
 				
 				//else if we passed an accountId
-				} else self::$account = self::account($accountId);
-				
-				//If we recieved an incomplete account
-				if (isset(self::$account->code)) {
-					echo self::$account->message;
-					return FALSE;
-				}
+				} else self::$account = self::account($accountId); 
 			}
 			//Completed
-			return TRUE;
+			return self::nav_account(TRUE);
 		}
 		
 		public static function setup($server=FALSE, $apiKey=FALSE, $accountId=FALSE) {
@@ -227,7 +221,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');			//DELETE request setup
 			return json_decode(self::data_decode(curl_exec($ch))); 		//Launch and return decrypted data
 		}
-		protected static function stream($url, $callback){
+		public static function stream($url, $callback) {
 		//Open a stream to Oanda 
 		//$callback = function ($ch, $str) {
 					// /* { YOUR CODE } */
@@ -381,10 +375,17 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		public static function nav_account_set($accountId) {
 		//Set our environment variable $account
 			self::$account = self::account($accountId);
+			return self::nav_account();
 		}
 		
-		public static function nav_account() {
+		public static function nav_account($verbose=FALSE) {
 		//Return our environment variable account
+			//If we recieved an incomplete account
+			if (isset(self::$account->code)) {
+				if ($verbose) 
+					echo self::$account->message;
+				return FALSE;
+			}
 			return self::$account;
 		}
 		

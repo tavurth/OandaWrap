@@ -31,6 +31,7 @@ limitations under the License.</pre><br><pre>
 <a href="#format_string"><b><i>format_string</i></b></a>
 <a href="#format"><b><i>format</i></b></a>
 <a href="#setup"><b><i>setup</i></b></a>
+<a href="#stream"><b><i>stream</i></b></a>
 <a href="#account"><b><i>account</i></b></a>
 <a href="#accounts"><b><i>accounts</i></b></a>
 <a href="#account_id"><b><i>account_id</i></b></a>
@@ -117,7 +118,13 @@ limitations under the License.</pre><br><pre>
 		Format a class to HTML code and echo the output in human readable format</pre></div><div id="setup">
 <hr><pre><b>Function:<i>setup</i></b>(server=Optional, apiKey=Optional, accountId=Optional)
 <b>Usage:</b>
-		Setup our enviornment variables</pre></div><div id="account">
+		Setup our enviornment variables</pre></div><div id="stream">
+<hr><pre><b>Function:<i>stream</i></b>(url, callback)
+<b>Usage:</b>
+		Open a stream to Oanda 
+		$callback = function ($ch, $str) {
+					 /* { YOUR CODE } */
+					 return strlen($str); }</pre></div><div id="account">
 <hr><pre><b>Function:<i>account</i></b>(accountId)
 <b>Usage:</b>
 		Return the information for $accountId</pre></div><div id="accounts">
@@ -167,9 +174,10 @@ limitations under the License.</pre><br><pre>
 <hr><pre><b>Function:<i>nav_account_set</i></b>(accountId)
 <b>Usage:</b>
 		Set our environment variable $account</pre></div><div id="nav_account">
-<hr><pre><b>Function:<i>nav_account</i></b>()
+<hr><pre><b>Function:<i>nav_account</i></b>(verbose=Optional)
 <b>Usage:</b>
-		Return our environment variable account</pre></div><div id="nav_instrument_name">
+		Return our environment variable account
+			If we recieved an incomplete account</pre></div><div id="nav_instrument_name">
 <hr><pre><b>Function:<i>nav_instrument_name</i></b>(pair, index=0)
 <b>Usage:</b>
 		Return the instrument name used to convert currency for the NAV</pre></div><div id="nav_size_percent">
