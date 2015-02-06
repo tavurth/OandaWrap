@@ -125,7 +125,9 @@ limitations under the License.</pre><br><pre>
 		$callback = function ($jsonObject) { /* { YOUR CODE } */;  }
 		Example:
 		OandaWrap::stream('events', function (event) { OandaWrap::format(event); }, array('ACCOUNT-ID' OR Omit for setup account));
-		OandaWrap::stream('prices', function (event) { OandaWrap::format(event); }, array('EUR_USD'));</pre></div><div id="account">
+		OandaWrap::stream('prices', function (event) { OandaWrap::format(event); }, array('EUR_USD'));
+		Notes:
+		Returning any value from the callback function (true or false) will exit the stream</pre></div><div id="account">
 <hr><pre><b>Function:<i>account</i></b>(accountId)
 <b>Usage:</b>
 		Return the information for $accountId</pre></div><div id="accounts">

@@ -238,6 +238,8 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		//Example:
 		//OandaWrap::stream('events', function (event) { OandaWrap::format(event); }, array('ACCOUNT-ID' OR Omit for setup account));
 		//OandaWrap::stream('prices', function (event) { OandaWrap::format(event); }, array('EUR_USD'));
+		//Notes:
+		//Returning any value from the callback function (true or false) will exit the stream
 			$type = strtolower($type);
 			
 			//Load the account from setup

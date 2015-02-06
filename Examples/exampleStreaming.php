@@ -46,6 +46,8 @@ if (defined('TAVURTH_OANDAWRAP_EXAMPLE_STREAMING') == FALSE) {
 	
 	$callback = function ($jsonObject) {
 		OandaWrap::format($jsonObject);
+		if (FALSE /*TIME TO EXIT THE STREAM*/)
+			return TRUE;
 	};
 	
 	OandaWrap::stream('prices', $callback, array('EUR_USD'));
