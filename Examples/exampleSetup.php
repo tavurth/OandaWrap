@@ -66,8 +66,7 @@ if (defined('TAVURTH_OANDAWRAP_EXAMPLE_SETUP') == FALSE) {
 	
 	echo'<p><h2>Call to OandaWrap::price(\'EUR_USD\') returns:</h2></p><p>';
 	//Display all information relating to a returned quote object
-	foreach (OandaWrap::price('EUR_USD') as $key => $value)
-		echo $key . ' => ' . $value . '<br>';
+	OandaWrap::format(OandaWrap::price('EUR_USD'));
 	echo '</p>';
 	
 	//End the html

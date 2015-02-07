@@ -87,6 +87,7 @@ limitations under the License.</pre><br><pre>
 <a href="#trade_set_trailing_stop"><b><i>trade_set_trailing_stop</i></b></a>
 <a href="#trade_set_all"><b><i>trade_set_all</i></b></a>
 <a href="#position"><b><i>position</i></b></a>
+<a href="#position_pnl_pips"><b><i>position_pnl_pips</i></b></a>
 <a href="#positions"><b><i>positions</i></b></a>
 <a href="#position_close"><b><i>position_close</i></b></a>
 <a href="#market"><b><i>market</i></b></a>
@@ -181,8 +182,7 @@ limitations under the License.</pre><br><pre>
 		Set our environment variable $account</pre></div><div id="nav_account">
 <hr><pre><b>Function:<i>nav_account</i></b>(verbose=Optional)
 <b>Usage:</b>
-		Return our environment variable account
-			If we recieved an incomplete account</pre></div><div id="nav_instrument_name">
+		Return our environment variable account</pre></div><div id="nav_instrument_name">
 <hr><pre><b>Function:<i>nav_instrument_name</i></b>(pair, index=0)
 <b>Usage:</b>
 		Return the instrument name used to convert currency for the NAV</pre></div><div id="nav_size_percent">
@@ -300,7 +300,10 @@ limitations under the License.</pre><br><pre>
 		Modify all trades on $pair</pre></div><div id="position">
 <hr><pre><b>Function:<i>position</i></b>(pair)
 <b>Usage:</b>
-		Return an object with the information for a single $pairs position</pre></div><div id="positions">
+		Return an object with the information for a single $pairs position</pre></div><div id="position_pnl_pips">
+<hr><pre><b>Function:<i>position_pnl_pips</i></b>(pair)
+<b>Usage:</b>
+		Return an int() of the calculated profit or loss for $pair in pips</pre></div><div id="positions">
 <hr><pre><b>Function:<i>positions</i></b>()
 <b>Usage:</b>
 		Return an object with all the positions for the account</pre></div><div id="position_close">
