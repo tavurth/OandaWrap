@@ -444,7 +444,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		
 		public static function nav_account_set($accountId) {
 		//Set our environment variable $account
-			return (self::valid(self::$account = self::account($accountId));
+			return self::valid(self::$account = self::account($accountId));
 		}
 		
 		public static function nav_account($verbose=FALSE) {
@@ -777,21 +777,17 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		}
 		public static function position_pnl_pips($pair) {
 		//Return an int() of the calculated profit or loss for $pair in pips
-			
-			$position = self::position($pair);
-			
+
 			//Check position validity
-			if (isset($position->instrument)) {
+			if (! self::valid($position = self::position($pair)))
+				return $position;
 				
-				//Buy back across the spread
-				$price = $position->side == 'buy' ? self::price($pair)->bid : self::price($pair)->ask;
-				
-				//Calculate and return the pips
-				return self::calc_pips($pair, $position->avgPrice, $price);
-			}
+			//Buy back across the spread
+			$price = $position->side == 'buy' ? self::price($pair)->bid : self::price($pair)->ask;
 			
-			//Return a failure jsonObject
-			return $position;
+			//Calculate and return the pips
+			return self::calc_pips($pair, $position->avgPrice, $price);
+		
 		}
 		public static function positions() {
 		//Return an object with all the positions for the account
