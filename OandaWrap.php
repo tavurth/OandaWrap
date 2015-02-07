@@ -196,13 +196,6 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 				self::$baseUrl . $index . ($query_data ? '?' . http_build_query($query_data) : '')); 
 			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');			//GET request setup
 			return json_decode(self::data_decode(curl_exec($ch))); 		//Launch and store decrypted data
-				self::$baseUrl . $index . ($query_data ? '?' : '') . ($query_data ? http_build_query($query_data) : '')); 
-			  if( ! $returndata = curl_exec($ch))
-			  {
-			  	trigger_error(curl_error($ch));
-			  }
-				$data = json_decode(self::data_decode($returndata)); 		//Launch and store decrypted data
-			return $data;
 		}
 		protected static function post($index, $query_data) {
 		//Send a POST request to Oanda
