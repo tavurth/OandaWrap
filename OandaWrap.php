@@ -318,7 +318,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		
 		public static function account_id($accountName, $uName) {
 		//Return the accountId for $accountName
-			return self::account_named($accountName, $uName)->accountId;
+			return self::valid($account = self::account_named($accountName, $uName)) ? $account->accountId : $account;
 		}
 		
 		public static function account_named($accountName, $uName) {
@@ -330,6 +330,8 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 			foreach ($accounts->accounts as $account)
 				if ($account->accountName == $accountName) 
 					return $account;
+				
+			return FALSE;
 		}
 		
 		//////////////////////////////////////////////////////////////////////////////////
@@ -364,6 +366,8 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 			foreach ($instruments->instruments as $instrument)
 				if (strpos($instrument->instrument, $currency))
 					$result->instruments[] = $instrument->instrument;
+			
+			return $result;
 		}
 		
 		public static function instrument_name($home, $away) {
@@ -403,34 +407,40 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		
 		public static function convert($pairHome, $pairAway, $amount) {
 		//Convert $amount of $pairHome to $pairAway
-			if ($pair = self::instrument_name($pairHome, $pairAway)) {
-				if ($price 		= self::price($pair)) {
-					//Use the $baseIndex currency of $pair (AUD_JPY = Aud or Jpy)
-					$reverse	= (strpos($pair, $pairHome) > strpos($pair, '_') ? FALSE : TRUE);
-					
-					//Which way to convert 
-					return ($reverse ? $amount * $price->ask : $amount / $price->ask);
-				}
-			}
-			return FALSE;
+			if (! self::valid($pair = self::instrument_name($pairHome, $pairAway)))
+				return $pair;
+			
+			
+			if (! self::valid($price = self::price($pair)))
+				return $price;
+			
+			//Use the $baseIndex currency of $pair (AUD_JPY = Aud or Jpy)
+			$reverse	= (strpos($pair, $pairHome) > strpos($pair, '_') ? FALSE : TRUE);
+			
+			//Which way to convert 
+			return ($reverse ? $amount * $price->ask : $amount / $price->ask);
+		
 		}
 		public static function convert_pair($pair, $amount, $home) {
 		//Convert $amount of $pair from $home 
 		//	i.e. OandaWrap::convert_pair('EUR_USD', 500, 'EUR'); Converts 500 EUR to USD
 		//	i.e. OandaWrap::convert_pair('EUR_USD', 500, 'USD'); Converts 500 USD to EUR
-			if ($price 		= self::price($pair)) {
-				$pairNames  = self::instrument_split($pair);
-				$homeFirst  = $home == $pairNames[0] ? TRUE : FALSE;
-				return ($homeFirst ? 
-						self::convert($pairNames[0], $pairNames[1], $amount) :
-						self::convert($pairNames[1], $pairNames[0], $amount));
-			}
-			return FALSE;
+			if (! self::valid($price = self::price($pair)))
+				return $price;
+			
+			$pairNames  = self::instrument_split($pair);
+			$homeFirst  = $home == $pairNames[0] ? TRUE : FALSE;
+			return ($homeFirst ? 
+					self::convert($pairNames[0], $pairNames[1], $amount) :
+					self::convert($pairNames[1], $pairNames[0], $amount));
 		}
 		
 		public static function calc_pips($pair, $open, $close) {
 		//Return the pip difference between prices $open and $close for $pair
-			return round(($open - $close)/self::instrument_pip($pair), 2);
+			if (! self::valid($instrument = self::instrument_pip($pair)))
+				return $instrument;
+			
+			return round(($open - $close)/$instrument, 2);
 		}
 		
 		public static function calc_pip_price($pair, $size, $side=1) {
@@ -501,7 +511,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		public static function transactions_types($types, $number=50, $pair='all') {
 		//Return a jsonObject with all transactions conforming to one of $types which is an array of strings
 			
-			if (! self::valid($transactions = self::instruments()))
+			if (! self::valid($transactions = self::transactions()))
 				return $transactions;
 			
 			$result = new stdClass(); 
