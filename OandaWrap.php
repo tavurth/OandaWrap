@@ -68,7 +68,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		}
 		
 		protected static function valid($jsonObject, $verbose=FALSE, $message=FALSE) {
-		//Return boolean value if object has been corrupted or incorrect information
+		//Return boolean value if object has been corrupted or has error messages/codes included
 			if (isset($jsonObject->code)) {
 				if ($verbose && isset($jsonObject->message))
 					echo 'OandaWrap: Invalid object. ' . $jsonObject->message . ' ';
@@ -79,7 +79,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 					echo 'OandaWrap: Error. ' . $message . ' ';
 				return FALSE;
 			}
-			return TRUE;
+			return $jsonObject;
 		}
 		
 		protected static function setup_account($baseUrl, $apiKey = FALSE, $accountId = FALSE) {
@@ -309,7 +309,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		}
 		
 		public static function accounts() {
-		//Return an array of the accounts for $username 
+		//Return a jsonObject of the accounts for $username 
 			return self::get('accounts');
 		}
 		
@@ -432,9 +432,8 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		
 		public static function calc_pip_price($pair, $size, $side=1) {
 		//Return the cost of a single pip of $pair when $size is used
-			if ($price = self::price(self::nav_instrument_name($pair, 1))) 
-				return (self::instrument_pip($pair)/($side ? $price->bid : $price->ask))*$size;
-			return FALSE;
+			return (self::valid($price = self::price(self::nav_instrument_name($pair, 1)))) ?
+				(self::instrument_pip($pair)/($side ? $price->bid : $price->ask))*$size : $price;
 		}
 		
 		//////////////////////////////////////////////////////////////////////////////////
@@ -445,13 +444,12 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		
 		public static function nav_account_set($accountId) {
 		//Set our environment variable $account
-			self::$account = self::account($accountId);
-			return self::nav_account();
+			return (self::valid(self::$account = self::account($accountId));
 		}
 		
 		public static function nav_account($verbose=FALSE) {
 		//Return our environment variable account
-			return (self::valid(self::$account, $verbose)) ? self::$account : FALSE;
+			return self::$account;
 		}
 		
 		public static function nav_instrument_name($pair, $index=0) {
@@ -479,7 +477,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		//Return the pnl for account, if $dollarValue is set TRUE, return in base currency, else as %.
 			if ($dollarValue == FALSE)
 				return round((self::$account->unrealizedPl / self::$account->balance) * 100, 2);
-			return (isset(self::$account) ? self::$account->unrealizedPl : FALSE);
+			return (self::valid(self::$account) ? self::$account->unrealizedPl : self::$account);
 		}
 		
 		//////////////////////////////////////////////////////////////////////////////////
@@ -498,7 +496,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		}
 		
 		public static function transactions_types($types, $number=50, $pair='all') {
-		//Return an array with all transactions conforming to one of $types which is an array of strings
+		//Return a jsonObject with all transactions conforming to one of $types which is an array of strings
 			
 			if (! self::valid($transactions = self::instruments()))
 				return $transactions;
@@ -852,16 +850,16 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		public static function buy_bullish($pair, $risk, $stop, $leverage=50) {
 		//Macro: Buy $pair and limit size to equal %NAV loss over $stop pips. Then set stopLoss
 			
-			if ($price = self::price($pair)) {
-				if (self::valid($newTrade = self::buy_market(self::nav_size_risk_per_pip($pair, ($risk/$stop))))) {
-				
-					//Set the stoploss
-					self::trade_set_stop($newTrade->tradeId, $price->ask + (self::instrument_pip($pair) * $stop));
-					
-					return $newTrade;
-				}
-			}
-			return FALSE;
+			//Retrieve current price
+			if (! self::valid($price = self::price($pair)))
+				return $price;
+			
+			//Buy and size so that risk is divided over $stop pips
+			if (! self::valid($newTrade = self::buy_market(self::nav_size_risk_per_pip($pair, ($risk/$stop)))))
+				return $newTrade;
+			
+			//Set the stoploss
+			return self::trade_set_stop($newTrade->tradeId, $price->ask + (self::instrument_pip($pair) * $stop));
 		}
 		
 		//////////////////////////////////////////////////////////////////////////////////
@@ -888,19 +886,17 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		}
 		public static function sell_bearish($pair, $risk, $stop, $leverage=50) {
 		//Macro: Sell $pair and limit size to equal %NAV loss over $stop pips. Then set stopLoss
-			
-			if ($price = self::price($pair)) {
-				//Sell, sizing so that we $risk / $stop
-				if (self::valid($newTrade = self::sell_market(self::nav_size_risk_per_pip($pair, ($risk/$stop))))) {
-					
-					//Set the stoploss
-					self::trade_set_stop($newTrade->tradeId, $price->bid - (self::instrument_pip($pair) * $stop));
-					
-					return $newTrade;
-				}
-			}
 
-			return FALSE;
+			//Retrieve current price
+			if (! self::valid($price = self::price($pair)))
+				return $price;
+			
+			//Sell and size so that risk is divided over $stop pips
+			if (! self::valid($newTrade = self::sell_market(self::nav_size_risk_per_pip($pair, ($risk/$stop)))))
+				return $newTrade;
+			
+			//Set the stoploss
+			return self::trade_set_stop($newTrade->tradeId, $price->bid - (self::instrument_pip($pair) * $stop));
 		}
 		
 		//////////////////////////////////////////////////////////////////////////////////
@@ -923,11 +919,11 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		
 		public static function price($pair) {
 		//Wrapper, return the current price of '$pair'
-			return (is_object($prices = self::prices(array($pair)))) ? $prices->prices[0] : FALSE;
+			return (self::valid($prices = self::prices(array($pair)))) ? $prices->prices[0] : $prices;
 		}
 		
 		public static function prices($pairs) {
-		//Return an array {prices} for {$pairs}
+		//Return a jsonObject {prices} for {$pairs}
 			return self::get('prices', array('instruments' => implode(',', $pairs)));
 		}
 		

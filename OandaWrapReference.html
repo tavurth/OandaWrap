@@ -136,7 +136,7 @@ limitations under the License.</pre><br><pre>
 		Return the information for $accountId</pre></div><div id="accounts">
 <hr><pre><b>Function:<i>accounts</i></b>()
 <b>Usage:</b>
-		Return an array of the accounts for $username </pre></div><div id="account_id">
+		Return a jsonObject of the accounts for $username </pre></div><div id="account_id">
 <hr><pre><b>Function:<i>account_id</i></b>(accountName, uName)
 <b>Usage:</b>
 		Return the accountId for $accountName</pre></div><div id="account_named">
@@ -204,7 +204,7 @@ limitations under the License.</pre><br><pre>
 		Return an object with all transactions (max 50)</pre></div><div id="transactions_types">
 <hr><pre><b>Function:<i>transactions_types</i></b>(types, number=50, pair='all')
 <b>Usage:</b>
-		Return an array with all transactions conforming to one of $types which is an array of strings</pre></div><div id="transactions_type">
+		Return a jsonObject with all transactions conforming to one of $types which is an array of strings</pre></div><div id="transactions_type">
 <hr><pre><b>Function:<i>transactions_type</i></b>(type, number=50, pair='all')
 <b>Usage:</b>
 		Return up to 50 transactions of $type</pre></div><div id="time_seconds">
@@ -357,7 +357,7 @@ limitations under the License.</pre><br><pre>
 		Wrapper, return the current price of '$pair'</pre></div><div id="prices">
 <hr><pre><b>Function:<i>prices</i></b>(pairs)
 <b>Usage:</b>
-		Return an array {prices} for {$pairs}</pre></div><div id="price_time">
+		Return a jsonObject {prices} for {$pairs}</pre></div><div id="price_time">
 <hr><pre><b>Function:<i>price_time</i></b>(pair, date)
 <b>Usage:</b>
 		Wrapper, return the price of '$pair' at $date which is a string such as "20:15 5th november 2012"</pre></div><div id="candles">
