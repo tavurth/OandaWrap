@@ -163,6 +163,9 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		
 		protected static function data_decode($data) {
 		//Return decoded data
+			if (! self::valid($data))
+				trigger_error(curl_error(self::$socket));
+
 			return (($decoded = @gzdecode($data)) ? $decoded : $data);
 		}
 		protected static function authenticate($ch) {
