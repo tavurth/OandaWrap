@@ -112,7 +112,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 			return self::nav_account(TRUE);
 		}
 		
-		public static function setup($server=FALSE, $apiKey=FALSE, $accountId=FALSE) {
+		public static function setup($server=FALSE, $apiKey=FALSE, $accountId=FALSE, $checkSSL = 2) {
 		//Setup our enviornment variables
 			if (self::valid(self::$account))
 				if (self::$account->accountId == $accountId)
@@ -122,9 +122,9 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 			//'Live', 'Demo' or the default 'Sandbox' servers.
 			switch (ucfirst(strtolower($server))) { //Set all to lowercase except the first character
 				case 'Live':
-					return self::setup_account('https://api-fxtrade.oanda.com/v1/', $apiKey, $accountId);
+					return self::setup_account('https://api-fxtrade.oanda.com/v1/', $apiKey, $accountId, $checkSSL);
 				case 'Demo':
-					return self::setup_account('https://api-fxpractice.oanda.com/v1/', $apiKey, $accountId);
+					return self::setup_account('https://api-fxpractice.oanda.com/v1/', $apiKey, $accountId, $checkSSL);
 				case 'Sandbox':
 					return self::setup_account('http://api-sandbox.oanda.com/v1/');
 				default:
