@@ -2,8 +2,8 @@
 
 /*
 
-Copyright 2014 William Whitty
-will.whitty.arbeit@gmail.com
+Copyright 2015 William Whitty
+Tavurth@gmail.com
 
 Licensed under the Apache License, Version 2.0 (the 'License');
 you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ if (defined('TAVURTH_OANDAWRAP_EXAMPLE_STREAMING') == FALSE) {
 	//Arg1 can be 'Demo', 'Live', or 'Sandbox';
 	if (OandaWrap::setup('Demo', $apiKey) == FALSE) {
 		echo 'OandaWrap failed to initialize, ';
-		echo 'contact will.whitty.arbeit@gmail.com to submit a bug report.';
+		echo 'contact Tavurth@gmail.com to submit a bug report.';
 		exit(1);
 	}
 	

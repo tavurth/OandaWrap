@@ -3,7 +3,7 @@
 /*
 
 Copyright 2015 William Whitty
-will.whitty.arbeit@gmail.com
+Tavurth@gmail.com
 
 Licensed under the Apache License, Version 2.0 (the 'License');
 you may not use this file except in compliance with the License.
@@ -37,20 +37,20 @@ if (defined('TAVURTH_OANDAWRAP_EXAMPLE_TRADE') == FALSE) {
 	//Arg1 can be 'Demo', 'Live', or Sandbox;
 	if (OandaWrap::setup('Demo', $apiKey, $accountId) == FALSE) {
 		echo 'OandaWrap failed to initialize, ';
-		echo 'contact will.whitty.arbeit@gmail.com to submit a bug report.';
+		echo 'contact Tavurth@gmail.com to submit a bug report.';
 		exit(1);
 	} 
 	
-	//Buy and display trade with a market order and included stop
+	echo '<h3><b>Buy with a market order and included stopLoss:<br></h3></b>';
 	OandaWrap::format(OandaWrap::buy_market(10, 'EUR_USD', array('stopLoss' => 1.0243)));
 	
-	//Set buy limit order and display with included takeProfit 
+	echo '<h3><b>Set buy limit order with included takeProfit:<br></h3></b>';
 	OandaWrap::format(OandaWrap::buy_limit(10, 'EUR_USD', 1.0243, OandaWrap::expiry_day(10), array('takeProfit' => 1.032)));
 	
-	//Set market if touched buy order and display with included trailingStop of 10 pips
+	echo '<h3><b>Set market if touched buy order with included trailingStop of 10 pips:<br></h3></b>';
 	OandaWrap::format(OandaWrap::buy_limit(10, 'EUR_USD', 1.0243, OandaWrap::expiry_hour(), array('trailingStop' => 10)));
 	
-	//Buy at market, limiting size so that 2% of account is risked over 20 pips, the set stop 20 pips from current price
+	echo '<h3><b>Buy at market, limiting size so that 2% of account is risked over 20 pips, the set stop 20 pips from current price:<br></h3></b>';
 	OandaWrap::format(OandaWrap::buy_bullish('EUR_USD', 2, 20));
 	
 }
