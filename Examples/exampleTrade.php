@@ -2,7 +2,7 @@
 
 /*
 
-Copyright 2014 William Whitty
+Copyright 2015 William Whitty
 will.whitty.arbeit@gmail.com
 
 Licensed under the Apache License, Version 2.0 (the 'License');
@@ -19,8 +19,8 @@ limitations under the License.
 
 */
 
-if (defined('TAVURTH_OANDAWRAP_EXAMPLE_SETUP') == FALSE) {
-	define('TAVURTH_OANDAWRAP_EXAMPLE_SETUP', TRUE);
+if (defined('TAVURTH_OANDAWRAP_EXAMPLE_TRADE') == FALSE) {
+	define('TAVURTH_OANDAWRAP_EXAMPLE_TRADE', TRUE);
 	
 	//Include OandaWrap
 	require '../OandaWrap.php';
@@ -35,43 +35,23 @@ if (defined('TAVURTH_OANDAWRAP_EXAMPLE_SETUP') == FALSE) {
 	
 	//Check to see that OandaWrap is setup correctly.
 	//Arg1 can be 'Demo', 'Live', or Sandbox;
-	if (OandaWrap::setup('Sandbox', $apiKey, $accountId) == FALSE) {
+	if (OandaWrap::setup('Demo', $apiKey, $accountId) == FALSE) {
 		echo 'OandaWrap failed to initialize, ';
 		echo 'contact will.whitty.arbeit@gmail.com to submit a bug report.';
 		exit(1);
-	}
+	} 
 	
-	//Html initiation
-	echo '<html>';
-	echo '<body>';
+	//Buy and display trade with a market order and included stop
+	OandaWrap::format(OandaWrap::buy_market(10, 'EUR_USD', array('stopLoss' => 1.0243)));
 	
-	//Style our body
-	echo '<style> 
+	//Set buy limit order and display with included takeProfit 
+	OandaWrap::format(OandaWrap::buy_limit(10, 'EUR_USD', 1.0243, OandaWrap::expiry_day(10), array('takeProfit' => 1.032)));
 	
-		body { font-size: 18; color:#222222; } 
-		p { position:relative; left:10%; margin: 0; padding: 0; } 
-		p.indent { position:relative; left:30%; }
+	//Set market if touched buy order and display with included trailingStop of 10 pips
+	OandaWrap::format(OandaWrap::buy_limit(10, 'EUR_USD', 1.0243, OandaWrap::expiry_hour(), array('trailingStop' => 10)));
 	
-	</style>';
-	//Our header
-	echo '<p><h2>OandaWrap quotes test:</h2></p>';
-	
-	//Save the requested pairs as an array
-	$pairs = array('EUR_USD', 'EUR_AUD', 'EUR_JPY', 'EUR_CAD');
-	
-	//Loop through the array
-	foreach ($pairs as $pair)	//Check for valid quote
-		if ($quote = OandaWrap::price($pair))
-			echo '<p>Price of ' . $pair . ' is: </p><p class="indent"> ' .$quote->bid . ' => ' . $quote->ask . '</p>';
-	
-	echo'<p><h2>Call to OandaWrap::price(\'EUR_USD\') returns:</h2></p><p>';
-	//Display all information relating to a returned quote object
-	OandaWrap::format(OandaWrap::price('EUR_USD'));
-	echo '</p>';
-	
-	//End the html
-	echo '</body>';
-	echo '</html>';
+	//Buy at market, limiting size so that 2% of account is risked over 20 pips, the set stop 20 pips from current price
+	OandaWrap::format(OandaWrap::buy_bullish('EUR_USD', 2, 20));
 	
 }
 
