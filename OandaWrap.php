@@ -67,8 +67,8 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 			echo '<pre>' . self::format_string($var) . '</pre>';
 		}
 		
-		protected static function valid($jsonObject, $verbose=FALSE, $message=FALSE) {
-		//Return boolean value if object has been corrupted or has error messages/codes included
+		public static function valid($jsonObject, $verbose=FALSE, $message=FALSE) {
+		//Return boolean false if object has been corrupted or has error messages/codes included
 			if (isset($jsonObject->code)) {
 				if ($verbose && isset($jsonObject->message))
 					echo 'OandaWrap: Invalid object. ' . $jsonObject->message . ' ';

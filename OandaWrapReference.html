@@ -30,6 +30,7 @@ limitations under the License.</pre><br><pre>
 <br><br>
 <a href="#format_string"><b><i>format_string</i></b></a>
 <a href="#format"><b><i>format</i></b></a>
+<a href="#valid"><b><i>valid</i></b></a>
 <a href="#setup"><b><i>setup</i></b></a>
 <a href="#stream"><b><i>stream</i></b></a>
 <a href="#account"><b><i>account</i></b></a>
@@ -116,7 +117,10 @@ limitations under the License.</pre><br><pre>
 		Format a class to html code</pre></div><div id="format">
 <hr><pre><b>Function:<i>format</i></b>(var)
 <b>Usage:</b>
-		Format a class to HTML code and echo the output in human readable format</pre></div><div id="setup">
+		Format a class to HTML code and echo the output in human readable format</pre></div><div id="valid">
+<hr><pre><b>Function:<i>valid</i></b>(jsonObject, verbose=Optional, message=Optional)
+<b>Usage:</b>
+		Return boolean false if object has been corrupted or has error messages/codes included</pre></div><div id="setup">
 <hr><pre><b>Function:<i>setup</i></b>(server=Optional, apiKey=Optional, accountId=Optional)
 <b>Usage:</b>
 		Setup our enviornment variables</pre></div><div id="stream">
@@ -191,8 +195,7 @@ limitations under the License.</pre><br><pre>
 		Return the value of a percentage of the NAV (Net account value)</pre></div><div id="nav_size_percent_per_pip">
 <hr><pre><b>Function:<i>nav_size_percent_per_pip</i></b>(pair, riskPerPip, leverage = 50)
 <b>Usage:</b>
-		Return the size for $pair that risks $riskPerPip every pip
-			@ maximum 50:1 leverage, risk is 0.5% per pip</pre></div><div id="nav_pnl">
+		Return the size for $pair that risks $riskPerPip every pip</pre></div><div id="nav_pnl">
 <hr><pre><b>Function:<i>nav_pnl</i></b>(dollarValue=Optional)
 <b>Usage:</b>
 		Return the pnl for account, if $dollarValue is set TRUE, return in base currency, else as %.</pre></div><div id="transaction">
