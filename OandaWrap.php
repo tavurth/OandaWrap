@@ -49,7 +49,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		protected static $instruments;
 		protected static $socket;
 		protected static $callback;
-		protected static $checkssl;
+		protected static $checkSSL;
 
 		//////////////////////////////////////////////////////////////////////////////////
 		//
@@ -83,7 +83,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 			return $jsonObject;
 		}
 		
-		protected static function setup_account($baseUrl, $apiKey = FALSE, $accountId = FALSE, $checkSSL = true) {
+		protected static function setup_account($baseUrl, $apiKey = FALSE, $accountId = FALSE, $checkSSL = 2) {
 		//Generic account setup program, prints out errors in the html if incomplete
 			//Set the url
 			self::$baseUrl = $baseUrl;
