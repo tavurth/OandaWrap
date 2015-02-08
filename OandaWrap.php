@@ -342,8 +342,12 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		
 		public static function instruments() {
 		//Return a list of tradeable instruments for $accountId
+			if (! self::valid(self::$account))
+				return self::$account;
+				
 			if (empty(self::$instruments))
 				self::$instruments = self::get('instruments', array('accountId' => self::$account->accountId));
+			
 			return self::$instruments;
 		}
 		public static function instrument($pair) {
@@ -355,6 +359,8 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 			foreach($instruments->instruments as $instrument)
 				if ($pair == $instrument->instrument)
 					return $instrument;
+			
+			return FALSE;
 		}
 		public static function instrument_pairs($currency) {
 		//Return instruments for that correspond to $currency
@@ -467,30 +473,70 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		
 		public static function nav_instrument_name($pair, $index=0) {
 		//Return the instrument name used to convert currency for the NAV
-			return self::instrument_name(self::$account->accountCurrency, self::instrument_split($pair)[$index]);
+			if (! self::valid(self::$account))
+				return self::$account;
+			
+			//Split the $pair
+			if (! self::valid($splitName = self::instrument_split($pair)))
+				return $splitName;
+			
+			//Choose the correct pair for the nav
+			if ($splitName[$index] == self::$account->accountCurrency)
+				$index = ($index == 1 ? 0 : 1);
+			
+			//Find the new instrument for the nav with $pair
+			return self::instrument_name(self::$account->accountCurrency, $splitName[$index]);
 		}
 		
 		public static function nav_size_percent($pair, $percent, $leverage = 50) {
 		//Return the value of a percentage of the NAV (Net account value)
-			$baseSize	= self::convert_pair(self::nav_instrument_name($pair), 
-								self::$account->balance*($percent/100), self::$account->accountCurrency);
-			//Calculate our leveraged size
+			
+			//Validate account details
+			if (! self::valid(self::$account))
+				return self::$account;
+			
+			//Validate pair name	
+			if (! self::valid($name = self::nav_instrument_name($pair)))
+				return $name;
+			
+			//Calculate the percentage balance to use in the trade	
+			$percent = self::$account->balance*($percent/100);
+			
+			//Convert the size to the trade currency
+			if (! self::valid($baseSize = self::convert_pair($name, $percent, self::$account->accountCurrency)))
+				return $baseSize;
+								
+			//Calculate and return the leveraged size
 			return floor($baseSize * $leverage);
 		}
 		
 		public static function nav_size_percent_per_pip($pair, $riskPerPip, $leverage = 50) {
 		//Return the size for $pair that risks $riskPerPip every pip
+			
+			//Calculate maximum size @ $leverage
+			if (! self::valid($maxSize = self::nav_size_percent($pair, 100, $leverage)))
+				return $maxSize;
+			
 			//@ maximum 50:1 leverage, risk is 0.5% per pip
-			$baseSize = ($riskPerPip/0.5)*self::nav_size_percent($pair, 100, $leverage);
+			$baseSize = ($riskPerPip/0.5)*$maxSize;
+			
 			//Calculate our leveraged size
 			return floor(($leverage/50)*$baseSize);
 		}
 		
 		public static function nav_pnl($dollarValue=FALSE) {
 		//Return the pnl for account, if $dollarValue is set TRUE, return in base currency, else as %.
+			
+			//Check for valid account
+			if (! self::valid(self::$account))
+				return self::$account;
+			
+			//Percentage
 			if ($dollarValue == FALSE)
 				return round((self::$account->unrealizedPl / self::$account->balance) * 100, 2);
-			return (self::valid(self::$account) ? self::$account->unrealizedPl : self::$account);
+			
+			//Default
+			return self::$account->unrealizedPl;
 		}
 		
 		//////////////////////////////////////////////////////////////////////////////////
@@ -863,8 +909,11 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 			if (! self::valid($price = self::price($pair)))
 				return $price;
 			
-			//Buy and size so that risk is divided over $stop pips
-			if (! self::valid($newTrade = self::buy_market(self::nav_size_risk_per_pip($pair, ($risk/$stop)))))
+			//Find the correct size so that $risk is divided by $pips	
+			if (! self::valid($size = self::nav_size_percent_per_pip($pair, ($risk/$stop))))
+				return $size;
+			
+			if (! self::valid($newTrade = self::buy_market($size, $pair)))
 				return $newTrade;
 			
 			//Set the stoploss
@@ -900,8 +949,11 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 			if (! self::valid($price = self::price($pair)))
 				return $price;
 			
-			//Sell and size so that risk is divided over $stop pips
-			if (! self::valid($newTrade = self::sell_market(self::nav_size_risk_per_pip($pair, ($risk/$stop)))))
+			//Find the correct size so that $risk is divided by $pips
+			if (! self::valid($size = self::nav_size_percent_per_pip($pair, ($risk/$stop))))
+				return $size;
+			
+			if (! self::valid($newTrade = self::sell_market($size, $pair)))
 				return $newTrade;
 			
 			//Set the stoploss
