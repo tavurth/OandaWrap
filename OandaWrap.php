@@ -88,7 +88,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 			//Set the url
 			self::$baseUrl = $baseUrl;
 			self::$instruments = array();
-			self::$checkssl = $checkSSL;
+			self::$checkSSL = $checkSSL;
 			//Checking our login details
 			if (strpos($baseUrl, 'https') !== FALSE || strpos($baseUrl, 'fxpractice') !== FALSE) {
 				
@@ -182,8 +182,8 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 								'Connection: Keep-Alive');				//Persistant http connection
 			if (isset(self::$apiKey)) {    								//Add our login hash
 				array_push($headers, 'Authorization: Bearer ' . self::$apiKey);
-				curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, self::$checkssl);			//Verify Oanda
-				curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, self::$checkssl);			//Verify Me
+				curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, self::$checkSSL);			//Verify Oanda
+				curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, self::$checkSSL);			//Verify Me
 			}
 			//Set the sockets headers
 			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
