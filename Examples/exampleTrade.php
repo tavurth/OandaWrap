@@ -41,16 +41,16 @@ if (defined('TAVURTH_OANDAWRAP_EXAMPLE_TRADE') == FALSE) {
 		exit(1);
 	} 
 	
-	//Buy and display trade with a market order and included stop
+	echo 'Buy with a market order and included stopLoss.<br>';
 	OandaWrap::format(OandaWrap::buy_market(10, 'EUR_USD', array('stopLoss' => 1.0243)));
 	
-	//Set buy limit order and display with included takeProfit 
+	echo 'Set buy limit order with included takeProfit.<br>';
 	OandaWrap::format(OandaWrap::buy_limit(10, 'EUR_USD', 1.0243, OandaWrap::expiry_day(10), array('takeProfit' => 1.032)));
 	
-	//Set market if touched buy order and display with included trailingStop of 10 pips
+	echo 'Set market if touched buy order with included trailingStop of 10 pips.<br>';
 	OandaWrap::format(OandaWrap::buy_limit(10, 'EUR_USD', 1.0243, OandaWrap::expiry_hour(), array('trailingStop' => 10)));
 	
-	//Buy at market, limiting size so that 2% of account is risked over 20 pips, the set stop 20 pips from current price
+	echo 'Buy at market, limiting size so that 2% of account is risked over 20 pips, the set stop 20 pips from current price.<br>';
 	OandaWrap::format(OandaWrap::buy_bullish('EUR_USD', 2, 20));
 	
 }
