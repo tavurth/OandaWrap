@@ -2,7 +2,7 @@
 
 /*
 
-Copyright 2014 William Whitty
+Copyright 2015 William Whitty
 Tavurth@gmail.com
 
 Licensed under the Apache License, Version 2.0 (the 'License');

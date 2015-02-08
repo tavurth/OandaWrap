@@ -791,7 +791,14 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		}
 		public static function trade_close_all($pair) {
 		//Close all trades on $pair
-			self::position_close($pair);
+			if (! self::valid($trades = self::trade_pair($pair)))
+				return $trades;
+
+			$result = new stdClass();
+			foreach ($trades->trades as $trade)
+				if (isset($trade->id))
+					$result->trades[] = self::close($trade->id);
+			return $result;
 		}
 		
 		//////////////////////////////////////////////////////////////////////////////////
@@ -821,7 +828,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		//Modify all trades on $pair
 			
 			if (! self::valid($trades = self::trade_pair($pair)))
-				return $orders;
+				return $trades;
 
 			$result = new stdClass();
 			foreach ($trades->trades as $trade)
