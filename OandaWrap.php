@@ -49,8 +49,8 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		protected static $instruments;
 		protected static $socket;
 		protected static $callback;
-		protected static $checkssl = FALSE;
-		
+		protected static $checkssl;
+
 		//////////////////////////////////////////////////////////////////////////////////
 		//
 		//	VARIABLE DECLARATION AND HELPER FUNCTIONS
@@ -83,12 +83,12 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 			return $jsonObject;
 		}
 		
-		protected static function setup_account($baseUrl, $apiKey = FALSE, $accountId = FALSE) {
+		protected static function setup_account($baseUrl, $apiKey = FALSE, $accountId = FALSE, $checkSSL = true) {
 		//Generic account setup program, prints out errors in the html if incomplete
 			//Set the url
 			self::$baseUrl = $baseUrl;
 			self::$instruments = array();
-			
+			self::$checkssl = $checkSSL;
 			//Checking our login details
 			if (strpos($baseUrl, 'https') !== FALSE || strpos($baseUrl, 'fxpractice') !== FALSE) {
 				
