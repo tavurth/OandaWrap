@@ -200,7 +200,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 				self::configure(self::$socket = curl_init());
 			return self::$socket;
 		}
-		protected static function get($index, $query_data=FALSE) {
+		protected static function get($index, $query_data=[]) {
 		//Send a GET request to Oanda											
 			$ch = self::socket();
 			
@@ -798,7 +798,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 			$result = new stdClass();
 			foreach ($trades->trades as $trade)
 				if (isset($trade->id))
-					$result->trades[] = self::close($trade->id);
+					$result->trades[] = self::trade_close($trade->id);
 			return $result;
 		}
 		
@@ -1007,8 +1007,8 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 			return (self::valid($candles = self::candles_time($pair, 'S5', ($time=strtotime($date)), $time+10))) ?
 				$candles->candles[0] : $candles;
 		}
-		
-		public static function candles($pair, $gran, $rest = FALSE) {
+
+		public static function candles($pair, $gran, $rest = null) {
 		//Return a number of candles for '$pair'
 			
 			//Defaults for $rest
@@ -1046,5 +1046,3 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		}
 	}
 }
-
-?>
