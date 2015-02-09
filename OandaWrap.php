@@ -375,7 +375,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 			if (! self::valid($instruments = self::instruments()))
 				return $instruments;
 			
-			$result      = new stdClass();
+			$result = (object) array('instruments' => array());
 			foreach ($instruments->instruments as $instrument)
 				if (strpos($instrument->instrument, $currency))
 					$result->instruments[] = $instrument->instrument;
@@ -567,7 +567,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 			if (! self::valid($transactions = self::transactions()))
 				return $transactions;
 			
-			$result = new stdClass(); 
+			$result = (object) array('transactions' => array());
 			foreach ($transactions->transactions as $transaction)
 				//If the type is valid
 				if (in_array($transaction->type, $types))
@@ -721,7 +721,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 			if (! self::valid($orders = self::order_pair($pair)))
 				return $orders;
 
-			$result = new stdClass();			
+			$result = (object) array('orders' => array());
 			foreach ($orders->orders as $order)
 				if (isset($order->id))
 					$result->orders[] = self::order_close($order->id);
@@ -765,7 +765,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 			if (! self::valid($orders = self::order_pair($pair)))
 				return $orders;
 				
-			$result = new stdClass();
+			$result = (object) array('orders' => array());
 			foreach ($orders->orders as $order)
 				if (isset($order->id))
 					$result->orders[] = self::set_('order', $order->id, $options);
@@ -795,7 +795,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 			if (! self::valid($trades = self::trade_pair($pair)))
 				return $trades;
 
-			$result = new stdClass();
+			$result = (object) array('trades' => array());
 			foreach ($trades->trades as $trade)
 				if (isset($trade->id))
 					$result->trades[] = self::trade_close($trade->id);
@@ -831,7 +831,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 			if (! self::valid($trades = self::trade_pair($pair)))
 				return $trades;
 
-			$result = new stdClass();
+			$result = (object) array('trades' => array());
 			foreach ($trades->trades as $trade)
 				if (isset($trade->id))
 					$result->trades[] = self::set_('trade', $trade->id, $options);
