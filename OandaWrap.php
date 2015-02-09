@@ -49,7 +49,8 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		protected static $instruments;
 		protected static $socket;
 		protected static $callback;
-		
+		protected static $checkSSL;
+
 		//////////////////////////////////////////////////////////////////////////////////
 		//
 		//	VARIABLE DECLARATION AND HELPER FUNCTIONS
@@ -82,12 +83,12 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 			return $jsonObject;
 		}
 		
-		protected static function setup_account($baseUrl, $apiKey = FALSE, $accountId = FALSE) {
+		protected static function setup_account($baseUrl, $apiKey = FALSE, $accountId = FALSE, $checkSSL = 2) {
 		//Generic account setup program, prints out errors in the html if incomplete
 			//Set the url
 			self::$baseUrl = $baseUrl;
 			self::$instruments = array();
-			
+			self::$checkSSL = $checkSSL;
 			//Checking our login details
 			if (strpos($baseUrl, 'https') !== FALSE || strpos($baseUrl, 'fxpractice') !== FALSE) {
 				
@@ -111,7 +112,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 			return self::nav_account(TRUE);
 		}
 		
-		public static function setup($server=FALSE, $apiKey=FALSE, $accountId=FALSE) {
+		public static function setup($server=FALSE, $apiKey=FALSE, $accountId=FALSE, $checkSSL = 2) {
 		//Setup our enviornment variables
 			if (self::valid(self::$account))
 				if (self::$account->accountId == $accountId)
@@ -121,9 +122,9 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 			//'Live', 'Demo' or the default 'Sandbox' servers.
 			switch (ucfirst(strtolower($server))) { //Set all to lowercase except the first character
 				case 'Live':
-					return self::setup_account('https://api-fxtrade.oanda.com/v1/', $apiKey, $accountId);
+					return self::setup_account('https://api-fxtrade.oanda.com/v1/', $apiKey, $accountId, $checkSSL);
 				case 'Demo':
-					return self::setup_account('https://api-fxpractice.oanda.com/v1/', $apiKey, $accountId);
+					return self::setup_account('https://api-fxpractice.oanda.com/v1/', $apiKey, $accountId, $checkSSL);
 				case 'Sandbox':
 					return self::setup_account('http://api-sandbox.oanda.com/v1/');
 				default:
@@ -181,8 +182,8 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 								'Connection: Keep-Alive');				//Persistant http connection
 			if (isset(self::$apiKey)) {    								//Add our login hash
 				array_push($headers, 'Authorization: Bearer ' . self::$apiKey);
-				curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, true);			//Verify Oanda
-				curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);			//Verify Me
+				curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, self::$checkSSL);			//Verify Oanda
+				curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, self::$checkSSL);			//Verify Me
 			}
 			//Set the sockets headers
 			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
@@ -199,7 +200,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 				self::configure(self::$socket = curl_init());
 			return self::$socket;
 		}
-		protected static function get($index, $query_data=FALSE) {
+		protected static function get($index, $query_data=[]) {
 		//Send a GET request to Oanda											
 			$ch = self::socket();
 			
@@ -797,7 +798,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 			$result = (object) array('trades' => array());
 			foreach ($trades->trades as $trade)
 				if (isset($trade->id))
-					$result->trades[] = self::close($trade->id);
+					$result->trades[] = self::trade_close($trade->id);
 			return $result;
 		}
 		
@@ -1006,8 +1007,8 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 			return (self::valid($candles = self::candles_time($pair, 'S5', ($time=strtotime($date)), $time+10))) ?
 				$candles->candles[0] : $candles;
 		}
-		
-		public static function candles($pair, $gran, $rest = FALSE) {
+
+		public static function candles($pair, $gran, $rest = null) {
 		//Return a number of candles for '$pair'
 			
 			//Defaults for $rest
@@ -1045,5 +1046,3 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		}
 	}
 }
-
-?>
