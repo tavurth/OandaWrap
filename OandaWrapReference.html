@@ -121,7 +121,7 @@ limitations under the License.</pre><br><pre>
 <hr><pre><b>Function:<i>valid</i></b>(jsonObject, verbose=Optional, message=Optional)
 <b>Usage:</b>
 		Return boolean false if object has been corrupted or has error messages/codes included</pre></div><div id="setup">
-<hr><pre><b>Function:<i>setup</i></b>(server=Optional, apiKey=Optional, accountId=Optional)
+<hr><pre><b>Function:<i>setup</i></b>(server=Optional, apiKey=Optional, accountId=Optional, checkSSL = 2)
 <b>Usage:</b>
 		Setup our enviornment variables</pre></div><div id="stream">
 <hr><pre><b>Function:<i>stream</i></b>(type, callback, options=Optional)
@@ -364,7 +364,7 @@ limitations under the License.</pre><br><pre>
 <hr><pre><b>Function:<i>price_time</i></b>(pair, date)
 <b>Usage:</b>
 		Wrapper, return the price of '$pair' at $date which is a string such as "20:15 5th november 2012"</pre></div><div id="candles">
-<hr><pre><b>Function:<i>candles</i></b>(pair, gran, rest = Optional)
+<hr><pre><b>Function:<i>candles</i></b>(pair, gran, rest = null)
 <b>Usage:</b>
 		Return a number of candles for '$pair'</pre></div><div id="candles_time">
 <hr><pre><b>Function:<i>candles_time</i></b>(pair, gran, start, end)
