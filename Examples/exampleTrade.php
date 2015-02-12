@@ -24,14 +24,7 @@ if (defined('TAVURTH_OANDAWRAP_EXAMPLE_TRADE') == FALSE) {
 	
 	//Include OandaWrap
 	require '../OandaWrap.php';
-	
-	//apiKey can be found inside your account information 
-	//screen and requires a one time generation
-	$apiKey 	= 'REPLACE THIS TEXT';
-	
-	//AccountId is the Id of one of your accounts
-	//To later change this use OandaWrap::nav_account_set($accountId)
-	$accountId 	= 'REPLACE THIS TEXT';
+	require 'config.php';
 	
 	//Check to see that OandaWrap is setup correctly.
 	//Arg1 can be 'Demo', 'Live', or Sandbox;

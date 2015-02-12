@@ -27,14 +27,11 @@ if (defined('TAVURTH_OANDAWRAP_EXAMPLE_STREAMING') == FALSE) {
 	
 	//Include OandaWrap
 	require '../OandaWrap.php';
-	
-	//apiKey can be found inside your account information 
-	//screen and requires a one time generation
-	$apiKey 	= 'REPLACE THIS TEXT';
+	require 'config.php';
 	
 	//Check to see that OandaWrap is setup correctly.
 	//Arg1 can be 'Demo', 'Live', or 'Sandbox';
-	if (OandaWrap::setup('Demo', $apiKey) == FALSE) {
+	if (OandaWrap::setup('Demo', $apiKey, $accountId) == FALSE) {
 		echo 'OandaWrap failed to initialize, ';
 		echo 'contact Tavurth@gmail.com to submit a bug report.';
 		exit(1);
