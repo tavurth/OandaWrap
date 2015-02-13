@@ -988,8 +988,9 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		
 		protected static function candles_times_to_seconds($candles) {
 		//Convert the times of $candles from microseconds to seconds
-			return (self::valid($candles)) ?
-				array_map('self::candle_time_to_seconds', $candles->candles) : $candles;
+			if (self::valid($candles))
+				$candles->candles = array_map('self::candle_time_to_seconds', $candles->candles);
+			return $candles;
 		}
 		
 		public static function price($pair) {
