@@ -1,0 +1,17 @@
+{
+  "name": "tavurth/oandawrap",
+  "description": "Php interface for Oanda API",
+  "minimum-stability": "dev",
+  "homepage": "http://tinyurl.com/OandaWrapReference",
+  "type": "library",
+  "license": "Apache-2.0",
+  "authors": [
+    {
+      "name": "William Whitty",
+      "email": "Tavurth@gmail.com"
+    }
+  ],
+  "autoload": {
+    "classmap": ["OandaWrap.php"]
+  }
+}
