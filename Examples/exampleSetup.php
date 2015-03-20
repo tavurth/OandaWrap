@@ -59,5 +59,3 @@ if (defined('TAVURTH_OANDAWRAP_EXAMPLE_SETUP') === FALSE) {
 	echo '</html>';
 	
 }
-
-?>
