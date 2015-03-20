@@ -8,5 +8,3 @@ $apiKey 	= 'REPLACE THIS TEXT';
 //Leave as false to choose the default account
 //To later change this use OandaWrap::nav_account_set($accountId)
 $accountId 	= FALSE;
-
-?>

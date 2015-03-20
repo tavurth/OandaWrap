@@ -19,7 +19,7 @@ limitations under the License.
 
 */
 
-if (defined('TAVURTH_OANDAWRAP_EXAMPLE_SETUP') == FALSE) {
+if (defined('TAVURTH_OANDAWRAP_EXAMPLE_SETUP') === FALSE) {
 	define('TAVURTH_OANDAWRAP_EXAMPLE_SETUP', TRUE);
 	
 	//Include OandaWrap
@@ -28,7 +28,7 @@ if (defined('TAVURTH_OANDAWRAP_EXAMPLE_SETUP') == FALSE) {
 
 	//Check to see that OandaWrap is setup correctly.
 	//Arg1 can be 'Demo', 'Live', or Sandbox;
-	if (OandaWrap::setup('Demo', $apiKey, $accountId) == FALSE) {
+	if (OandaWrap::setup('Demo', $apiKey, $accountId) === FALSE) {
 		echo 'OandaWrap failed to initialize, ';
 		echo 'contact Tavurth@gmail.com to submit a bug report.';
 		exit(1);
@@ -56,12 +56,6 @@ if (defined('TAVURTH_OANDAWRAP_EXAMPLE_SETUP') == FALSE) {
 	foreach ($pairs as $pair)	//Check for valid quote
 		if ($quote = OandaWrap::price($pair))
 			echo '<p>Price of ' . $pair . ' is: </p><p class="indent"> ' .$quote->bid . ' => ' . $quote->ask . '</p>';
-	
-	echo'<p><h2>Call to OandaWrap::price(\'EUR_USD\') returns:</h2></p><p>';
-	var_dump(OandaWrap::price('EUR_USD'));
-	//Display all information relating to a returned quote object
-	OandaWrap::format(OandaWrap::price('EUR_USD'));
-	echo '</p>';
 	
 	//End the html
 	echo '</body>';

@@ -19,7 +19,7 @@ limitations under the License.
 
 */
 
-if (defined('TAVURTH_OANDAWRAP_EXAMPLE_STREAMING') == FALSE) {
+if (defined('TAVURTH_OANDAWRAP_EXAMPLE_STREAMING') === FALSE) {
 	define('TAVURTH_OANDAWRAP_EXAMPLE_STREAMING', TRUE);
 	
 	//This example should be run from a console.
@@ -31,7 +31,7 @@ if (defined('TAVURTH_OANDAWRAP_EXAMPLE_STREAMING') == FALSE) {
 	
 	//Check to see that OandaWrap is setup correctly.
 	//Arg1 can be 'Demo', 'Live', or 'Sandbox';
-	if (OandaWrap::setup('Demo', $apiKey, $accountId) == FALSE) {
+	if (OandaWrap::setup('Demo', $apiKey, $accountId) === FALSE) {
 		echo 'OandaWrap failed to initialize, ';
 		echo 'contact Tavurth@gmail.com to submit a bug report.';
 		exit(1);

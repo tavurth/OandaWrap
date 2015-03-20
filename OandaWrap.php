@@ -19,7 +19,7 @@ limitations under the License.
 
 */
 
-if (defined('TAVURTH_OANDAWRAP') == FALSE) {
+if (defined('TAVURTH_OANDAWRAP') === FALSE) {
 	define('TAVURTH_OANDAWRAP', TRUE);
 	
 	//////////////////////////////////////////////////////////////////////////////////
@@ -57,17 +57,6 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		//
 		//////////////////////////////////////////////////////////////////////////////////
 		
-		public static function format_string($var) {
-		//Format a class to html code
-			ob_start(); print_r($var); $varString = ob_get_contents(); ob_clean();
-			return str_replace(str_split("\n()"), str_split(" {}"), nl2br($varString, TRUE));
-		}
-		
-		public static function format($var) {
-		//Format a class to HTML code and echo the output in human readable format
-			echo '<pre>' . self::format_string($var) . '</pre>';
-		}
-		
 		public static function valid($jsonObject, $verbose=FALSE, $message=FALSE) {
 		//Return boolean false if object has been corrupted or has error messages/codes included
 			if (isset($jsonObject->code)) {
@@ -75,7 +64,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 					echo 'OandaWrap: Invalid object. ' . $jsonObject->message . ' ';
 				return FALSE;
 			}
-			if (isset($jsonObject) == FALSE || $jsonObject == FALSE || empty($jsonObject)) {
+			if (isset($jsonObject) === FALSE || $jsonObject === FALSE || empty($jsonObject)) {
 				if ($verbose && $message)
 					echo 'OandaWrap: Error. ' . $message . ' ';
 				return FALSE;
@@ -175,24 +164,24 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 
 			return json_decode(($decoded = @gzdecode($data)) ? $decoded : $data);
 		}
-		protected static function authenticate($ch) {
+		protected static function authenticate($curl) {
 		//Authenticate our curl object
 			$headers = array('X-Accept-Datetime-Format: UNIX',			//Milliseconds since epoch
 								'Accept-Encoding: gzip, deflate',		//Compress data
 								'Connection: Keep-Alive');				//Persistant http connection
 			if (isset(self::$apiKey)) {    								//Add our login hash
 				array_push($headers, 'Authorization: Bearer ' . self::$apiKey);
-				curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, self::$checkSSL);			//Verify Oanda
-				curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, self::$checkSSL);			//Verify Me
+				curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, self::$checkSSL);			//Verify Oanda
+				curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, self::$checkSSL);			//Verify Me
 			}
 			//Set the sockets headers
-			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+			curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
 		}
-		protected static function configure($ch) {
+		protected static function configure($curl) {
 		//Configure default connection settings
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);				//We want the data returned as a variable
-			curl_setopt($ch, CURLOPT_TIMEOUT, 10);						//Maximum wait before timeout
-			self::authenticate($ch);									//Authenticate our socket
+			curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);				//We want the data returned as a variable
+			curl_setopt($curl, CURLOPT_TIMEOUT, 10);						//Maximum wait before timeout
+			self::authenticate($curl);									//Authenticate our socket
 		}
 		protected static function socket() {
 		//Return our active socket for reuse
@@ -202,43 +191,43 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		}
 		protected static function get($index, $query_data=[]) {
 		//Send a GET request to Oanda											
-			$ch = self::socket();
+			$curl = self::socket();
 			
-			curl_setopt($ch, CURLOPT_HTTPGET, 1);
-			curl_setopt($ch, CURLOPT_URL, //Url setup
+			curl_setopt($curl, CURLOPT_HTTPGET, 1);
+			curl_setopt($curl, CURLOPT_URL, //Url setup
 				self::$baseUrl . $index . ($query_data ? '?' . http_build_query($query_data) : '')); 
-			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');			//GET request setup
-			return self::data_decode(curl_exec($ch)); 		//Launch and store decrypted data
+			curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'GET');			//GET request setup
+			return self::data_decode(curl_exec($curl)); 		//Launch and store decrypted data
 		}
 		protected static function post($index, $query_data) {
 		//Send a POST request to Oanda
-			$ch = self::socket();
+			$curl = self::socket();
 			
-			curl_setopt($ch, CURLOPT_URL, self::$baseUrl . $index);		//Url setup
-			curl_setopt($ch, CURLOPT_POST, 1);							//Tell curl we want to POST
-			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');			//POST request setup
-			curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($query_data));  //Include the POST data
-			return self::data_decode(curl_exec($ch)); 		//Launch and return decrypted data
+			curl_setopt($curl, CURLOPT_URL, self::$baseUrl . $index);		//Url setup
+			curl_setopt($curl, CURLOPT_POST, 1);							//Tell curl we want to POST
+			curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'POST');			//POST request setup
+			curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($query_data));  //Include the POST data
+			return self::data_decode(curl_exec($curl)); 		//Launch and return decrypted data
 		}
 		protected static function patch($index, $query_data) {
 		//Send a PATCH request to Oanda
-			$ch = self::socket();
+			$curl = self::socket();
 											
-			curl_setopt($ch, CURLOPT_URL, self::$baseUrl . $index);		//Url setup
-			curl_setopt($ch, CURLOPT_POST, 1);							//Tell curl we want to POST
-			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PATCH');			//PATCH request setup
-			curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($query_data));  //Include the POST data
-			return self::data_decode(curl_exec($ch)); 		//Launch and return decrypted data
+			curl_setopt($curl, CURLOPT_URL, self::$baseUrl . $index);		//Url setup
+			curl_setopt($curl, CURLOPT_POST, 1);							//Tell curl we want to POST
+			curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'PATCH');			//PATCH request setup
+			curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($query_data));  //Include the POST data
+			return self::data_decode(curl_exec($curl)); 		//Launch and return decrypted data
 		}
 		protected static function delete($index) {
 		//Send a DELETE request to Oanda
-			$ch = self::socket();
+			$curl = self::socket();
 			
-			curl_setopt($ch, CURLOPT_URL, self::$baseUrl . $index);		//Url setup
-			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');			//DELETE request setup
-			return self::data_decode(curl_exec($ch)); 		//Launch and return decrypted data
+			curl_setopt($curl, CURLOPT_URL, self::$baseUrl . $index);		//Url setup
+			curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'DELETE');			//DELETE request setup
+			return self::data_decode(curl_exec($curl)); 		//Launch and return decrypted data
 		}
-		private static function stream_callback($ch, $str) {
+		private static function stream_callback($curl, $str) {
 		//Callback that then calls your function to process streaming data
 			
 			//If we return a non-null value, quit the stream
@@ -294,16 +283,16 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 				self::$callback = $callback;
 				
 				//Authenticate the socket to Oanda
-				self::authenticate(($ch = curl_init()));
+				self::authenticate(($curl = curl_init()));
 				
 				//Setup the stream
-				curl_setopt($ch, CURLOPT_URL, $streamUrl);
+				curl_setopt($curl, CURLOPT_URL, $streamUrl);
 				
 				//Our callback, called for every new data packet
-				curl_setopt($ch, CURLOPT_WRITEFUNCTION, 'self::stream_callback');
+				curl_setopt($curl, CURLOPT_WRITEFUNCTION, 'self::stream_callback');
 				
 				//Execute
-				return (curl_exec($ch));
+				return (curl_exec($curl));
 			}
 		}
 		
@@ -539,7 +528,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 				return self::$account;
 			
 			//Percentage
-			if ($dollarValue == FALSE)
+			if ($dollarValue === FALSE)
 				return round((self::$account->unrealizedPl / self::$account->balance) * 100, 2);
 			
 			//Default
@@ -691,7 +680,7 @@ if (defined('TAVURTH_OANDAWRAP') == FALSE) {
 		//Open a new order
 			
 			//failure to provide expiry and price to limit or stop orders?
-			if ($type != 'market' && ($price == FALSE || $expiry == FALSE))
+			if ($type !== 'market' && ($price === FALSE || $expiry === FALSE))
 				return FALSE;
 			
 			//Setup options
