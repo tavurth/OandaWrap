@@ -28,11 +28,8 @@ if (defined('TAVURTH_OANDAWRAP_EXAMPLE_SETUP') === FALSE) {
 
 	//Check to see that OandaWrap is setup correctly.
 	//Arg1 can be 'Demo', 'Live', or Sandbox;
-	if (OandaWrap::setup('Demo', $apiKey, $accountId) === FALSE) {
-		echo 'OandaWrap failed to initialize, ';
-		echo 'contact Tavurth@gmail.com to submit a bug report.';
-		exit(1);
-	}
+	if (OandaWrap::setup('Demo', $apiKey, $accountId) === FALSE)
+		throw new Exception('contact Tavurth@gmail.com to submit a bug report.');
 	
 	//Html initiation
 	echo '<html>';

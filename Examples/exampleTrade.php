@@ -28,11 +28,8 @@ if (defined('TAVURTH_OANDAWRAP_EXAMPLE_TRADE') === FALSE) {
 	
 	//Check to see that OandaWrap is setup correctly.
 	//Arg1 can be 'Demo', 'Live', or Sandbox;
-	if (OandaWrap::setup('Demo', $apiKey, $accountId) === FALSE) {
-		echo 'OandaWrap failed to initialize, ';
-		echo 'contact Tavurth@gmail.com to submit a bug report.';
-		exit(1);
-	} 
+	if (OandaWrap::setup('Demo', $apiKey, $accountId) === FALSE)
+      throw new Exception('Contact Tavurth@gmail.com to submit a bug report.');
 	
 	echo '<h3><b>Buy with a market order and included stopLoss:<br></h3></b>';
 	OandaWrap::format(OandaWrap::buy_market(10, 'EUR_USD', array('stopLoss' => 1.0243)));

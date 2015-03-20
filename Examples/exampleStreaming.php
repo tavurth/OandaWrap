@@ -31,14 +31,11 @@ if (defined('TAVURTH_OANDAWRAP_EXAMPLE_STREAMING') === FALSE) {
 	
 	//Check to see that OandaWrap is setup correctly.
 	//Arg1 can be 'Demo', 'Live', or 'Sandbox';
-	if (OandaWrap::setup('Demo', $apiKey, $accountId) === FALSE) {
-		echo 'OandaWrap failed to initialize, ';
-		echo 'contact Tavurth@gmail.com to submit a bug report.';
-		exit(1);
-	}
+	if (OandaWrap::setup('Demo', $apiKey, $accountId) === FALSE)
+      throw new Exception('contact Tavurth@gmail.com to submit a bug report.');
 	
 	$callback = function ($jsonObject) {
-		var_dump($jsonObject);
+        echo "Recieved new JsonObject!\n";
 		if (FALSE /* RETURN TRUE TO EXIT THE STREAM*/)
 			return TRUE;
 	};
@@ -46,5 +43,3 @@ if (defined('TAVURTH_OANDAWRAP_EXAMPLE_STREAMING') === FALSE) {
 	OandaWrap::stream('prices', $callback, array('EUR_USD'));
 	//OandaWrap::stream('events', $callback, array('ACCOUNT-ID'));
 }
-
-?>
