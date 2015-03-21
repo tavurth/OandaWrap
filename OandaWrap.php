@@ -464,7 +464,7 @@ if (defined('TAVURTH_OANDAWRAP') === FALSE) {
 		
 		public static function nav_account($verbose=FALSE) {
 		//Return our environment variable account
-			return self::$account;
+            return (isset(self::$account->message) ? FALSE : self::$account);
 		}
 		
 		public static function nav_instrument_name($pair, $index=0) {
