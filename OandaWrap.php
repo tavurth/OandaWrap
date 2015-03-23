@@ -162,7 +162,7 @@ if (defined('TAVURTH_OANDAWRAP') === FALSE) {
 				return $failure;
 			}
 
-			return json_decode(($decoded = @gzdecode($data)) ? $decoded : $data);
+			return json_decode(($decoded = @gzinflate(substr($data,10,-8))) ? $decoded : $data);
 		}
 		protected static function authenticate($curl) {
 		//Authenticate our curl object
@@ -189,34 +189,35 @@ if (defined('TAVURTH_OANDAWRAP') === FALSE) {
 				self::configure(self::$socket = curl_init());
 			return self::$socket;
 		}
-		protected static function get($index, $query_data=[]) {
-		//Send a GET request to Oanda											
+		protected static function get($index, $queryData=false) {
+		//Send a GET request to Oanda
+			$queryData = ($queryData ? $queryData : array());
 			$curl = self::socket();
 			
 			curl_setopt($curl, CURLOPT_HTTPGET, 1);
 			curl_setopt($curl, CURLOPT_URL, //Url setup
-				self::$baseUrl . $index . ($query_data ? '?' . http_build_query($query_data) : '')); 
+				self::$baseUrl . $index . ($queryData ? '?' . http_build_query($queryData) : '')); 
 			curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'GET');			//GET request setup
 			return self::data_decode(curl_exec($curl)); 		//Launch and store decrypted data
 		}
-		protected static function post($index, $query_data) {
+		protected static function post($index, $queryData) {
 		//Send a POST request to Oanda
 			$curl = self::socket();
 			
 			curl_setopt($curl, CURLOPT_URL, self::$baseUrl . $index);		//Url setup
 			curl_setopt($curl, CURLOPT_POST, 1);							//Tell curl we want to POST
 			curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'POST');			//POST request setup
-			curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($query_data));  //Include the POST data
+			curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($queryData));  //Include the POST data
 			return self::data_decode(curl_exec($curl)); 		//Launch and return decrypted data
 		}
-		protected static function patch($index, $query_data) {
+		protected static function patch($index, $queryData) {
 		//Send a PATCH request to Oanda
 			$curl = self::socket();
 											
 			curl_setopt($curl, CURLOPT_URL, self::$baseUrl . $index);		//Url setup
 			curl_setopt($curl, CURLOPT_POST, 1);							//Tell curl we want to POST
 			curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'PATCH');			//PATCH request setup
-			curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($query_data));  //Include the POST data
+			curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($queryData));  //Include the POST data
 			return self::data_decode(curl_exec($curl)); 		//Launch and return decrypted data
 		}
 		protected static function delete($index) {
