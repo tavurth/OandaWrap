@@ -288,11 +288,12 @@ if (defined('TAVURTH_OANDAWRAP') === FALSE) {
             }
         }
 
-        function stream_exec($mh) {
-            do {
-                curl_multi_exec($mh, $running);
-                curl_multi_select($mh);
-            } while ($running > 0);
+        function stream_exec($multiHandle) {
+            $running = 1;
+            while ($running > 0) {
+                curl_multi_exec($multiHandle, $running);
+                curl_multi_select($multiHandle);
+            }
         }
         
 		public static function stream($callback, $quotes = FALSE, $accounts = FALSE) {
