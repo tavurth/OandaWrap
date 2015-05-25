@@ -2,20 +2,20 @@
 
 /*
 
-Copyright 2014 William Whitty
-Tavurth@gmail.com
+  Copyright 2014 William Whitty
+  Tavurth@gmail.com
 
-Licensed under the Apache License, Version 2.0 (the 'License');
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+  Licensed under the Apache License, Version 2.0 (the 'License');
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+  http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an 'AS IS' BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an 'AS IS' BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
 
 */
 
@@ -58,7 +58,7 @@ if (defined('TAVURTH_OANDAWRAP') === FALSE) {
 		//////////////////////////////////////////////////////////////////////////////////
 		
 		public static function valid($jsonObject, $verbose=FALSE, $message=FALSE) {
-		//Return boolean false if object has been corrupted or has error messages/codes included
+            //Return boolean false if object has been corrupted or has error messages/codes included
 			if (isset($jsonObject->code)) {
 				if ($verbose && isset($jsonObject->message))
 					echo 'OandaWrap: Invalid object. ' . $jsonObject->message . ' ';
@@ -73,7 +73,7 @@ if (defined('TAVURTH_OANDAWRAP') === FALSE) {
 		}
 		
 		protected static function setup_account($baseUrl, $apiKey = FALSE, $accountId = FALSE, $checkSSL = 2) {
-		//Generic account setup program, prints out errors in the html if incomplete
+            //Generic account setup program, prints out errors in the html if incomplete
 			//Set the url
 			self::$baseUrl = $baseUrl;
 			self::$instruments = array();
@@ -94,7 +94,7 @@ if (defined('TAVURTH_OANDAWRAP') === FALSE) {
 						return FALSE;
 					self::$account = $accounts->accounts[0];
 				
-				//else if we passed an accountId
+                    //else if we passed an accountId
 				} else self::$account = self::account($accountId);
 			}
 			//Completed
@@ -102,7 +102,7 @@ if (defined('TAVURTH_OANDAWRAP') === FALSE) {
 		}
 		
 		public static function setup($server=FALSE, $apiKey=FALSE, $accountId=FALSE, $checkSSL = 2) {
-		//Setup our enviornment variables
+            //Setup our enviornment variables
 			if (self::valid(self::$account))
 				if (self::$account->accountId == $accountId)
 					return;
@@ -110,38 +110,38 @@ if (defined('TAVURTH_OANDAWRAP') === FALSE) {
 			self::$callback = FALSE;
 			//'Live', 'Demo' or the default 'Sandbox' servers.
 			switch (ucfirst(strtolower($server))) { //Set all to lowercase except the first character
-				case 'Live':
-					return self::setup_account('https://api-fxtrade.oanda.com/v1/', $apiKey, $accountId, $checkSSL);
-				case 'Demo':
-					return self::setup_account('https://api-fxpractice.oanda.com/v1/', $apiKey, $accountId, $checkSSL);
-				case 'Sandbox':
-					return self::setup_account('http://api-sandbox.oanda.com/v1/');
-				default:
-					echo 'User must specify: "Live", "Demo", or "Sandbox" server for OandaWrap setup.';
-					return FALSE;
+            case 'Live':
+                return self::setup_account('https://api-fxtrade.oanda.com/v1/', $apiKey, $accountId, $checkSSL);
+            case 'Demo':
+                return self::setup_account('https://api-fxpractice.oanda.com/v1/', $apiKey, $accountId, $checkSSL);
+            case 'Sandbox':
+                return self::setup_account('http://api-sandbox.oanda.com/v1/');
+            default:
+                echo 'User must specify: "Live", "Demo", or "Sandbox" server for OandaWrap setup.';
+                return FALSE;
 			}
 		}
 		
 		protected static function index() {
-		//Return a formatted string for more concise code
+            //Return a formatted string for more concise code
 			if (self::valid(self::$account))
 				return 'accounts/' . self::$account->accountId . '/';
 			return 'accounts/0/';
 		}
 		protected static function position_index() {
-		//Return a formatted string for more concise code
+            //Return a formatted string for more concise code
 			return self::index() . 'positions/';
 		}
 		protected static function trade_index() {
-		//Return a formatted string for more concise code
+            //Return a formatted string for more concise code
 			return self::index() . 'trades/';
 		}
 		protected static function order_index() {
-		//Return a formatted string for more concise code
+            //Return a formatted string for more concise code
 			return self::index() . 'orders';
 		}
 		protected static function transaction_index() {
-		//Return a formatted string for more concise code
+            //Return a formatted string for more concise code
 			return self::index() . 'transactions/';
 		}
 		
@@ -152,7 +152,7 @@ if (defined('TAVURTH_OANDAWRAP') === FALSE) {
 		//////////////////////////////////////////////////////////////////////////////////
 		
 		protected static function data_decode($data) {
-		//Return decoded data
+            //Return decoded data
 			if (! self::valid($data)) {
 				//Return a stdObj with failure codes and message
 				$failure = new stdClass();
@@ -165,10 +165,10 @@ if (defined('TAVURTH_OANDAWRAP') === FALSE) {
 			return json_decode(($decoded = @gzinflate(substr($data,10,-8))) ? $decoded : $data);
 		}
 		protected static function authenticate($curl) {
-		//Authenticate our curl object
+            //Authenticate our curl object
 			$headers = array('X-Accept-Datetime-Format: UNIX',			//Milliseconds since epoch
-								'Accept-Encoding: gzip, deflate',		//Compress data
-								'Connection: Keep-Alive');				//Persistant http connection
+                             'Accept-Encoding: gzip, deflate',		//Compress data
+                             'Connection: Keep-Alive');				//Persistant http connection
 			if (isset(self::$apiKey)) {    								//Add our login hash
 				array_push($headers, 'Authorization: Bearer ' . self::$apiKey);
 				curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, self::$checkSSL);			//Verify Oanda
@@ -178,30 +178,34 @@ if (defined('TAVURTH_OANDAWRAP') === FALSE) {
 			curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
 		}
 		protected static function configure($curl) {
-		//Configure default connection settings
+            //Configure default connection settings
 			curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);				//We want the data returned as a variable
 			curl_setopt($curl, CURLOPT_TIMEOUT, 10);						//Maximum wait before timeout
 			self::authenticate($curl);									//Authenticate our socket
+            return $curl;
 		}
+        protected static function socket_new() {
+            return self::configure($socket = curl_init());
+        }
 		protected static function socket() {
-		//Return our active socket for reuse
+            //Return our active socket for reuse
 			if (! self::valid(self::$socket))
-				self::configure(self::$socket = curl_init());
+                self::$socket = self::socket_new();
 			return self::$socket;
 		}
 		protected static function get($index, $queryData=false) {
-		//Send a GET request to Oanda
+            //Send a GET request to Oanda
 			$queryData = ($queryData ? $queryData : array());
 			$curl = self::socket();
 			
 			curl_setopt($curl, CURLOPT_HTTPGET, 1);
 			curl_setopt($curl, CURLOPT_URL, //Url setup
-				self::$baseUrl . $index . ($queryData ? '?' . http_build_query($queryData) : '')); 
+                        self::$baseUrl . $index . ($queryData ? '?' . http_build_query($queryData) : '')); 
 			curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'GET');			//GET request setup
 			return self::data_decode(curl_exec($curl)); 		//Launch and store decrypted data
 		}
 		protected static function post($index, $queryData) {
-		//Send a POST request to Oanda
+            //Send a POST request to Oanda
 			$curl = self::socket();
 			
 			curl_setopt($curl, CURLOPT_URL, self::$baseUrl . $index);		//Url setup
@@ -211,7 +215,7 @@ if (defined('TAVURTH_OANDAWRAP') === FALSE) {
 			return self::data_decode(curl_exec($curl)); 		//Launch and return decrypted data
 		}
 		protected static function patch($index, $queryData) {
-		//Send a PATCH request to Oanda
+            //Send a PATCH request to Oanda
 			$curl = self::socket();
 											
 			curl_setopt($curl, CURLOPT_URL, self::$baseUrl . $index);		//Url setup
@@ -221,7 +225,7 @@ if (defined('TAVURTH_OANDAWRAP') === FALSE) {
 			return self::data_decode(curl_exec($curl)); 		//Launch and return decrypted data
 		}
 		protected static function delete($index) {
-		//Send a DELETE request to Oanda
+            //Send a DELETE request to Oanda
 			$curl = self::socket();
 			
 			curl_setopt($curl, CURLOPT_URL, self::$baseUrl . $index);		//Url setup
@@ -229,97 +233,137 @@ if (defined('TAVURTH_OANDAWRAP') === FALSE) {
 			return self::data_decode(curl_exec($curl)); 		//Launch and return decrypted data
 		}
 		private static function stream_callback($curl, $str) {
-		//Callback that then calls your function to process streaming data
+            //Callback that then calls your function to process streaming data
 			
 			//If we return a non-null value, quit the stream
 			if (call_user_func(self::$callback, json_decode($str)) === NULL)
 				return strlen($str);
 			return TRUE;
 		}
-		public static function stream($type, $callback, $options=FALSE) {
-		//Open a stream to Oanda 
-		//	$callback = function ($jsonObject) { /* { YOUR CODE } */;  }
-		//
-		//Example:
-		//	OandaWrap::stream('events', 
-		//		function (event) { OandaWrap::format(event); }, 
-		//			array('ACCOUNT-ID' OR Omit for OandaWrap::nav_account()));
-		//
-		//	OandaWrap::stream('prices', function (event) { OandaWrap::format(event); }, array('EUR_USD'));
-		//
-		//Notes:
-		//	Returning any value from the callback function (true or false) will exit the stream
-			$type = strtolower($type);
-			
-			//Load the account from setup
+
+        private static function stream_url($type) {
+            //Find the base of the url
+            return str_replace("api", 'stream', self::$baseUrl) . $type . '?';
+		
+        }
+        private static function stream_setup($callback, $streamUrl) {
+            //Set the internal callback function
+            self::$callback = $callback;
+
+            //Authenticate the socket to Oanda
+            self::authenticate(($streamHandle = curl_init()));
+				
+            //Setup the stream
+            curl_setopt($streamHandle, CURLOPT_URL, $streamUrl);
+
+            //Our callback, called for every new data packet
+            curl_setopt($streamHandle, CURLOPT_WRITEFUNCTION, 'self::stream_callback');
+            
+            return $streamHandle;
+        }
+        
+        private static function event_stream($callback, $options=FALSE) {
+            //Load the account from setup
 			if (self::valid($account = self::nav_account(TRUE))) {
-				
-				//Find the base of the url
-				$streamUrl = str_replace("api", 'stream', self::$baseUrl) . $type . '?';
-				
-				//Load the type of stream
-				switch ($type) {
-					case 'prices': //Tick stream
-						if (empty($options)) 
-							$options[] = $account->accountId;
-						
-						//Url options setup
-						$streamUrl .= 'accountId=' . $account->accountId . '&instruments='. implode(',', $options); 
-						break;
-						
-					case 'events':  //Event stream
-						if (! self::valid($options, TRUE, 'Must provide array of AccountIds for events streaming.'))
-							return FALSE;
-						
-						//Url options setup
-						$streamUrl .= 'accountIds='. implode(',', $options); 
-						break;
-					
-					default:  //Failure
-						'Type must be "events" or "prices"<br>';
-						return FALSE;
-				}
-				
-				//Set the internal callback function
-				self::$callback = $callback;
-				
-				//Authenticate the socket to Oanda
-				self::authenticate(($curl = curl_init()));
-				
-				//Setup the stream
-				curl_setopt($curl, CURLOPT_URL, $streamUrl);
-				
-				//Our callback, called for every new data packet
-				curl_setopt($curl, CURLOPT_WRITEFUNCTION, 'self::stream_callback');
-				
-				//Execute
-				return (curl_exec($curl));
-			}
-		}
+
+                // Check that we passed at least one valid account
+                if (! self::valid($options, TRUE, 'Must provide array of AccountIds for events streaming.'))
+                    return FALSE;
+
+                // Return a curl handle to the new stream
+                return self::stream_setup($callback, self::stream_url('events') . 'accountIds=' . implode(',', $options));
+            }
+
+        }
+        private static function quote_stream($callback, $options=FALSE) {
+            //Load the account from setup
+			if (self::valid($account = self::nav_account(TRUE))) {
+
+                // Check that we passed at least one valid account
+                if (! self::valid($options, TRUE, 'Must provide array of currency pairs for quote streaming.'))
+                    return FALSE;
+
+                // Return a curl handle to the new stream
+                return self::stream_setup($callback, self::stream_url('prices') . 'accountId=' . $account->accountId . '&instruments='. implode(',', $options));
+            }
+        }
+
+        function stream_exec($mh) {
+            do {
+                curl_multi_exec($mh, $running);
+                curl_multi_select($mh);
+            } while ($running > 0);
+        }
+        
+		public static function stream($callback, $quotes = FALSE, $accounts = FALSE) {
+            //Open a stream to Oanda 
+            //	$callback = function ($jsonObject) { /* { YOUR CODE } */;  }
+            //
+            // Quotes Example:
+            //	OandaWrap::stream(function (event) { OandaWrap::format(event); }, array('EUR_USD'), FALSE);
+            //
+            // Events Example:
+            //	OandaWrap::stream(function (event) { OandaWrap::format(event); }, FALSE, array('12345'));
+            //
+            //
+            // Events Example:
+            //	OandaWrap::stream(function (event) { OandaWrap::format(event); }, array('EUR_USD'), array('12345'));
+            //Notes:
+            //	Returning any value from the callback function (true or false) will exit the stream
+
+            $eventStream = false;
+            $quoteStream = false;
+
+            // Return false if no parameters were passed
+            if (! $quotes && ! $accounts)
+                return FALSE;
+
+            // Create the multi curl base
+            $multiHandle = curl_multi_init();
+
+            // Add the quote stream
+            if ($quotes !== false && ! empty($quotes))
+                if (($quoteStream = self::quote_stream($callback, $quotes)))
+                    curl_multi_add_handle($multiHandle, $quoteStream);
+
+            // Add the event stream
+            if ($accounts !== false && ! empty($accounts))
+                if (($eventStream = self::event_stream($callback, $accounts)))
+                    curl_multi_add_handle($multiHandle, $eventStream);
+
+            self::stream_exec($multiHandle);
+
+            // Cleanup
+            if ($eventStream)
+                curl_multi_remove_handle($multiHandle, $eventStream);
+            if ($quoteStream)
+                curl_multi_remove_handle($multiHandle, $quoteStream);
+            curl_multi_close($multiHandle);
+        }
 		
-		//////////////////////////////////////////////////////////////////////////////////
-		//
-		//	ACCOUNT WRAPPERS
-		//
-		//////////////////////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////////////////////
+        //
+        //	ACCOUNT WRAPPERS
+        //
+        //////////////////////////////////////////////////////////////////////////////////
 		
-		public static function account($accountId) {
-		//Return the information for $accountId
-			return self::get('accounts/' . $accountId);
-		}
+        public static function account($accountId) {
+            //Return the information for $accountId
+            return self::get('accounts/' . $accountId);
+        }
 		
 		public static function accounts() {
-		//Return a jsonObject of the accounts for $username 
+            //Return a jsonObject of the accounts for $username 
 			return self::get('accounts');
 		}
 		
 		public static function account_id($accountName, $uName) {
-		//Return the accountId for $accountName
+            //Return the accountId for $accountName
 			return self::valid($account = self::account_named($accountName, $uName)) ? $account->accountId : $account;
 		}
 		
 		public static function account_named($accountName, $uName) {
-		//Return the information for $accountName
+            //Return the information for $accountName
 	
 			if (! self::valid($accounts = self::accounts($uName)))
 				return $accounts;
@@ -338,7 +382,7 @@ if (defined('TAVURTH_OANDAWRAP') === FALSE) {
 		//////////////////////////////////////////////////////////////////////////////////
 		
 		public static function instruments() {
-		//Return a list of tradeable instruments for $accountId
+            //Return a list of tradeable instruments for $accountId
 			if (! self::valid(self::$account))
 				return self::$account;
 				
@@ -348,7 +392,7 @@ if (defined('TAVURTH_OANDAWRAP') === FALSE) {
 			return self::$instruments;
 		}
 		public static function instrument($pair) {
-		//Return instrument for named $pair
+            //Return instrument for named $pair
 		
 			if (! self::valid($instruments = self::instruments()))
 				return $instruments;
@@ -360,7 +404,7 @@ if (defined('TAVURTH_OANDAWRAP') === FALSE) {
 			return FALSE;
 		}
 		public static function instrument_pairs($currency) {
-		//Return instruments for that correspond to $currency
+            //Return instruments for that correspond to $currency
 			
 			if (! self::valid($instruments = self::instruments()))
 				return $instruments;
@@ -374,7 +418,7 @@ if (defined('TAVURTH_OANDAWRAP') === FALSE) {
 		}
 		
 		public static function instrument_name($home, $away) {
-		//Return a proper instrument name for two currencies
+            //Return a proper instrument name for two currencies
 			//Example: OandaWrap::instrument_name('AUD', 'CHF') returns 'AUD_CHF'
 			//Example: OandaWrap::instrument_name('USD', 'EUR') returns 'EUR_USD' 
 			if (self::instrument($home . '_' . $away))
@@ -385,7 +429,7 @@ if (defined('TAVURTH_OANDAWRAP') === FALSE) {
 		}
 		
 		public static function instrument_split($pair) {
-		//Split an instrument into two currencies and return an array of them both
+            //Split an instrument into two currencies and return an array of them both
 			$currencies = array();
 			$dividerPos = strpos($pair, '_');
 			//Failire
@@ -397,7 +441,7 @@ if (defined('TAVURTH_OANDAWRAP') === FALSE) {
 		}
 		
 		public static function instrument_pip($pair) {
-		//Return a floating point number declaring the pip size of $pair
+            //Return a floating point number declaring the pip size of $pair
 			return self::valid(($instrument = self::instrument($pair)), TRUE) ? $instrument->pip : $instrument;
 		}
 		
@@ -409,7 +453,7 @@ if (defined('TAVURTH_OANDAWRAP') === FALSE) {
 		//////////////////////////////////////////////////////////////////////////////////
 		
 		public static function convert($pairHome, $pairAway, $amount) {
-		//Convert $amount of $pairHome to $pairAway
+            //Convert $amount of $pairHome to $pairAway
 			if (! self::valid($pair = self::instrument_name($pairHome, $pairAway)))
 				return $pair;
 			
@@ -425,9 +469,9 @@ if (defined('TAVURTH_OANDAWRAP') === FALSE) {
 		
 		}
 		public static function convert_pair($pair, $amount, $home) {
-		//Convert $amount of $pair from $home 
-		//	i.e. OandaWrap::convert_pair('EUR_USD', 500, 'EUR'); Converts 500 EUR to USD
-		//	i.e. OandaWrap::convert_pair('EUR_USD', 500, 'USD'); Converts 500 USD to EUR
+            //Convert $amount of $pair from $home 
+            //	i.e. OandaWrap::convert_pair('EUR_USD', 500, 'EUR'); Converts 500 EUR to USD
+            //	i.e. OandaWrap::convert_pair('EUR_USD', 500, 'USD'); Converts 500 USD to EUR
 			if (! self::valid($price = self::price($pair)))
 				return $price;
 			
@@ -439,7 +483,7 @@ if (defined('TAVURTH_OANDAWRAP') === FALSE) {
 		}
 		
 		public static function calc_pips($pair, $open, $close) {
-		//Return the pip difference between prices $open and $close for $pair
+            //Return the pip difference between prices $open and $close for $pair
 			if (! self::valid($instrument = self::instrument_pip($pair)))
 				return $instrument;
 			
@@ -447,9 +491,9 @@ if (defined('TAVURTH_OANDAWRAP') === FALSE) {
 		}
 		
 		public static function calc_pip_price($pair, $size, $side=1) {
-		//Return the cost of a single pip of $pair when $size is used
+            //Return the cost of a single pip of $pair when $size is used
 			return (self::valid($price = self::price(self::nav_instrument_name($pair, 1)))) ?
-				(self::instrument_pip($pair)/($side ? $price->bid : $price->ask))*$size : $price;
+                                       (self::instrument_pip($pair)/($side ? $price->bid : $price->ask))*$size : $price;
 		}
 		
 		//////////////////////////////////////////////////////////////////////////////////
@@ -459,17 +503,17 @@ if (defined('TAVURTH_OANDAWRAP') === FALSE) {
 		////////////////////////////////////////////////////////////////////////////////// 
 		
 		public static function nav_account_set($accountId) {
-		//Set our environment variable $account
+            //Set our environment variable $account
 			return self::valid(self::$account = self::account($accountId));
 		}
 		
 		public static function nav_account($verbose=FALSE) {
-		//Return our environment variable account
+            //Return our environment variable account
             return (isset(self::$account->message) ? FALSE : self::$account);
 		}
 		
 		public static function nav_instrument_name($pair, $index=0) {
-		//Return the instrument name used to convert currency for the NAV
+            //Return the instrument name used to convert currency for the NAV
 			if (! self::valid(self::$account))
 				return self::$account;
 			
@@ -486,7 +530,7 @@ if (defined('TAVURTH_OANDAWRAP') === FALSE) {
 		}
 		
 		public static function nav_size_percent($pair, $percent, $leverage = 50) {
-		//Return the value of a percentage of the NAV (Net account value)
+            //Return the value of a percentage of the NAV (Net account value)
 			
 			//Validate account details
 			if (! self::valid(self::$account))
@@ -508,7 +552,7 @@ if (defined('TAVURTH_OANDAWRAP') === FALSE) {
 		}
 		
 		public static function nav_size_percent_per_pip($pair, $riskPerPip, $leverage = 50) {
-		//Return the size for $pair that risks $riskPerPip every pip
+            //Return the size for $pair that risks $riskPerPip every pip
 			
 			//Calculate maximum size @ $leverage
 			if (! self::valid($maxSize = self::nav_size_percent($pair, 100, $leverage)))
@@ -522,7 +566,7 @@ if (defined('TAVURTH_OANDAWRAP') === FALSE) {
 		}
 		
 		public static function nav_pnl($dollarValue=FALSE) {
-		//Return the pnl for account, if $dollarValue is set TRUE, return in base currency, else as %.
+            //Return the pnl for account, if $dollarValue is set TRUE, return in base currency, else as %.
 			
 			//Check for valid account
 			if (! self::valid(self::$account))
@@ -543,16 +587,16 @@ if (defined('TAVURTH_OANDAWRAP') === FALSE) {
 		//////////////////////////////////////////////////////////////////////////////////
 		
 		public static function transaction($transactionId) {
-		//Get information on a single transaction
+            //Get information on a single transaction
 			return self::get(self::transaction_index() . $transactionId);
 		}
 		public static function transactions($number=50, $pair='all') {
-		//Return an object with all transactions (max 50)
+            //Return an object with all transactions (max 50)
 			return self::get(self::transaction_index(), array('count' => $number, 'instrument' => $pair));
 		}
 		
 		public static function transactions_types($types, $number=50, $pair='all') {
-		//Return a jsonObject with all transactions conforming to one of $types which is an array of strings
+            //Return a jsonObject with all transactions conforming to one of $types which is an array of strings
 			
 			if (! self::valid($transactions = self::transactions()))
 				return $transactions;
@@ -567,7 +611,7 @@ if (defined('TAVURTH_OANDAWRAP') === FALSE) {
 			return $result;
 		}
 		public static function transactions_type($type, $number=50, $pair='all') {
-		//Return up to 50 transactions of $type
+            //Return up to 50 transactions of $type
 			return self::transactions_types(array($type), $number, $pair);
 		}
 		
@@ -584,52 +628,52 @@ if (defined('TAVURTH_OANDAWRAP') === FALSE) {
 		//////////////////////////////////////////////////////////////////////////////////
 		
 		public static function time_seconds($time) {
-		//Convert oanda time from microseconds to seconds
+            //Convert oanda time from microseconds to seconds
 			return floor($time/1000000);
 		}
 		
 		public static function gran_seconds($gran) {
-		//Return a the number of seconds per Oandas 'granularity'
+            //Return a the number of seconds per Oandas 'granularity'
 			switch (strtoupper($gran)) {
-				case 'S5': return 5;
-				case 'S10': return 10;
-				case 'S15': return 15;
-				case 'S30': return 30;
-				case 'M1': return 60;
-				case 'M2': return 2*60;
-				case 'M3': return 3*60;
-				case 'M4': return 4*60;
-				case 'M5': return 5*60;
-				case 'M10': return 10*60;
-				case 'M15': return 15*60;
-				case 'M30': return 30*60;
-				case 'H1': return 60*60;
-				case 'H2': return 2*60*60;
-				case 'H3': return 3*60*60;
-				case 'H4': return 4*60*60;
-				case 'H6': return 6*60*60;
-				case 'H8': return 8*60*60;
-				case 'H12': return 12*60*60;
-				case 'D' : return 24*60*60;
-				case 'W' : return 7*24*60*60;
-				case 'M' : return (365*24*60*60)/12;
+            case 'S5': return 5;
+            case 'S10': return 10;
+            case 'S15': return 15;
+            case 'S30': return 30;
+            case 'M1': return 60;
+            case 'M2': return 2*60;
+            case 'M3': return 3*60;
+            case 'M4': return 4*60;
+            case 'M5': return 5*60;
+            case 'M10': return 10*60;
+            case 'M15': return 15*60;
+            case 'M30': return 30*60;
+            case 'H1': return 60*60;
+            case 'H2': return 2*60*60;
+            case 'H3': return 3*60*60;
+            case 'H4': return 4*60*60;
+            case 'H6': return 6*60*60;
+            case 'H8': return 8*60*60;
+            case 'H12': return 12*60*60;
+            case 'D' : return 24*60*60;
+            case 'W' : return 7*24*60*60;
+            case 'M' : return (365*24*60*60)/12;
 			}
 		}
 		
 		public static function expiry($seconds=5) {
-		//Return the Oanda compatible timestamp of time() + $seconds
+            //Return the Oanda compatible timestamp of time() + $seconds
 			return time()+$seconds;
 		}
 		public static function expiry_min($minutes=5) {
-		//Return the Oanda compatible timestamo of time() + $minutes
+            //Return the Oanda compatible timestamo of time() + $minutes
 			return self::expiry($minutes*60);
 		}
 		public static function expiry_hour($hours=1) {
-		//Return the Oanda compatible timestamp of time() + $hours
+            //Return the Oanda compatible timestamp of time() + $hours
 			return self::expiry_min($hours*60);
 		}
 		public static function expiry_day($days=1) {
-		//Return the Oanda compatible timestamp of time() + $days
+            //Return the Oanda compatible timestamp of time() + $days
 			return self::expiry_hour($days*24);
 		}
 		
@@ -642,24 +686,24 @@ if (defined('TAVURTH_OANDAWRAP') === FALSE) {
 		//$type in all cases for bidirectional is either 'order' or 'trade'
 		
 		protected static function set_($type, $id, $args) {
-		//Macro function for setting attributes of both orders and trades
+            //Macro function for setting attributes of both orders and trades
 			switch ($type) {
-				case 'order':
-					return self::order_set($id, $args);
-				case 'trade':
-					return self::trade_set($id, $args);
+            case 'order':
+                return self::order_set($id, $args);
+            case 'trade':
+                return self::trade_set($id, $args);
 			}
 		}
 		public static function set_stop($type, $id, $price) {
-		//Set the stopLoss of an order or trade
+            //Set the stopLoss of an order or trade
 			return self::set_($type, $id, array('stopLoss' => $price));
 		}
 		public static function set_tp($type, $id, $price) {
-		//Set the takeProfit of an order or trade
+            //Set the takeProfit of an order or trade
 			return self::set_($type, $id, array('takeProfit' => $price));
 		}
 		public static function set_trailing_stop($type, $id, $distance) {
-		//Set the trailingStop of an order or trade
+            //Set the trailingStop of an order or trade
 			return self::set_($type, $id, array('trailingStop' => $distance));
 		}
 		
@@ -670,15 +714,15 @@ if (defined('TAVURTH_OANDAWRAP') === FALSE) {
 		//////////////////////////////////////////////////////////////////////////////////
 		
 		public static function order($orderId) {
-		//Return an object with the information about $orderId
+            //Return an object with the information about $orderId
 			return self::get(self::order_index() . '/' . $orderId);
 		}
 		public static function order_pair($pair, $number=50) {
-		//Get an object with all the orders for $pair
+            //Get an object with all the orders for $pair
 			return self::get(self::order_index(), array('instrument' => $pair, 'count' => $number));
 		}
 		public static function order_open($side, $units, $pair, $type, $price=FALSE, $expiry=FALSE, $rest = FALSE) {
-		//Open a new order
+            //Open a new order
 			
 			//failure to provide expiry and price to limit or stop orders?
 			if ($type !== 'market' && ($price === FALSE || $expiry === FALSE))
@@ -686,11 +730,11 @@ if (defined('TAVURTH_OANDAWRAP') === FALSE) {
 			
 			//Setup options
 			$orderOptions = array(
-						'instrument' => $pair, 
-						'units' => $units, 
-						'side' => $side, 
-						'type' => $type
-					);
+                'instrument' => $pair, 
+                'units' => $units, 
+                'side' => $side, 
+                'type' => $type
+            );
 			
 			if ($price) $orderOptions['price'] = $price;
 			if ($expiry) $orderOptions['expiry'] = $expiry;
@@ -702,11 +746,11 @@ if (defined('TAVURTH_OANDAWRAP') === FALSE) {
 			return self::post(self::order_index(), $orderOptions);
 		}
 		public static function order_close($orderId) {
-		//Close an order by Id
+            //Close an order by Id
 			return self::delete(self::order_index() . '/' . $orderId);
 		}
 		public static function order_close_all($pair) {
-		//Close all orders in $pair
+            //Close all orders in $pair
 		
 			if (! self::valid($orders = self::order_pair($pair)))
 				return $orders;
@@ -725,32 +769,32 @@ if (defined('TAVURTH_OANDAWRAP') === FALSE) {
 		//////////////////////////////////////////////////////////////////////////////////
 		
 		public static function order_set($orderId, $options) {
-		//Modify the parameters of an order
+            //Modify the parameters of an order
 			return self::patch(self::order_index()  . '/' . $orderId, $options);
 		}
 		public static function order_set_stop($id, $price) {
-		//Set the stopLoss of an order
+            //Set the stopLoss of an order
 			return self::set_stop('order', $id, $price);
 		}
 		public static function order_set_tp($id, $price) {
-		//Set the takeProfit of an order
+            //Set the takeProfit of an order
 			return self::set_tp('order', $id, $price);
 		}
 		public static function order_set_trailing_stop($id, $distance) {
-		//Set the trailingStop of an order
+            //Set the trailingStop of an order
 			return self::set_trailing_stop('order', $id, $distance);
 		}
 		public static function order_set_expiry($id, $time) {
-		//Set the expiry of an order
+            //Set the expiry of an order
 			return self::set_('order', $id, array('expiry' => $time));
 		}
 		public static function order_set_units($id, $units) {
-		//Set the units of an order
+            //Set the units of an order
 			return self::set_('order', $id, array('units' => $units));
 		}
 		
 		public static function order_set_all($pair, $options) {
-		//Modify all orders on $pair
+            //Modify all orders on $pair
 			
 			if (! self::valid($orders = self::order_pair($pair)))
 				return $orders;
@@ -769,19 +813,19 @@ if (defined('TAVURTH_OANDAWRAP') === FALSE) {
 		//////////////////////////////////////////////////////////////////////////////////
 		
 		public static function trade($tradeId) {
-		//Return an object containing information on a single pair
+            //Return an object containing information on a single pair
 			return self::get(self::trade_index() . $tradeId);
 		}
 		public static function trade_pair($pair, $number=50) {
-		//Return an object with all the trades on $pair
+            //Return an object with all the trades on $pair
 			return self::get(self::trade_index(), array('instrument' => $pair, 'count' => $number));
 		}
 		public static function trade_close($tradeId) {
-		//Close trade referenced by $tradeId
+            //Close trade referenced by $tradeId
 			return self::delete(self::trade_index() . $tradeId);
 		}
 		public static function trade_close_all($pair) {
-		//Close all trades on $pair
+            //Close all trades on $pair
 			if (! self::valid($trades = self::trade_pair($pair)))
 				return $trades;
 
@@ -799,24 +843,24 @@ if (defined('TAVURTH_OANDAWRAP') === FALSE) {
 		//////////////////////////////////////////////////////////////////////////////////
 		
 		public static function trade_set($tradeId, $options) {
-		//Modify attributes of a trade referenced by $tradeId
+            //Modify attributes of a trade referenced by $tradeId
 			return self::patch(self::trade_index() . $tradeId, $options);
 		}
 		public static function trade_set_stop($id, $price) {
-		//Set the stopLoss of a trade
+            //Set the stopLoss of a trade
 			return self::set_stop('trade', $id, $price);
 		}
 		public static function trade_set_tp($id, $price) {
-		//Set the takeProfit of a trade
+            //Set the takeProfit of a trade
 			return self::set_tp('trade', $id, $price);
 		}
 		public static function trade_set_trailing_stop($id, $distance) {
-		//Set the trailingStop of a trade
+            //Set the trailingStop of a trade
 			return self::set_trailing_stop('trade', $id, $distance);
 		}
 		
 		public static function trade_set_all($pair, $options) {
-		//Modify all trades on $pair
+            //Modify all trades on $pair
 			
 			if (! self::valid($trades = self::trade_pair($pair)))
 				return $trades;
@@ -835,11 +879,11 @@ if (defined('TAVURTH_OANDAWRAP') === FALSE) {
 		//////////////////////////////////////////////////////////////////////////////////
 		
 		public static function position($pair) {
-		//Return an object with the information for a single $pairs position
+            //Return an object with the information for a single $pairs position
 			return self::get(self::position_index() . $pair);
 		}
 		public static function position_pnl_pips($pair) {
-		//Return an int() of the calculated profit or loss for $pair in pips
+            //Return an int() of the calculated profit or loss for $pair in pips
 
 			//Check position validity
 			if (! self::valid($position = self::position($pair)))
@@ -853,11 +897,11 @@ if (defined('TAVURTH_OANDAWRAP') === FALSE) {
 		
 		}
 		public static function positions() {
-		//Return an object with all the positions for the account
+            //Return an object with all the positions for the account
 			return self::get(self::position_index());
 		}
 		public static function position_close($pair) {
-		//Close the position for $pair
+            //Close the position for $pair
 			return self::delete(self::position_index() . $pair);
 		}
 		
@@ -868,19 +912,19 @@ if (defined('TAVURTH_OANDAWRAP') === FALSE) {
 		//////////////////////////////////////////////////////////////////////////////////
 		
 		public static function market($side, $units, $pair, $rest = FALSE) {
-		//Open a new @ market order
+            //Open a new @ market order
 			return self::order_open($side, $units, $pair, 'market', FALSE, FALSE, $rest);
 		}
 		public static function limit($side, $units, $pair, $price, $expiry, $rest = FALSE) {
-		//Open a new limit order
+            //Open a new limit order
 			return self::order_open($side, $units, $pair, 'limit', $price, $expiry, $rest);
 		}
 		public static function stop($side, $units, $pair, $price, $expiry, $rest = FALSE) {
-		//Open a new stop order
+            //Open a new stop order
 			return self::order_open($side, $units, $pair, 'stop', $price, $expiry, $rest);
 		}
 		public static function mit($side, $units, $pair, $price, $expiry, $rest = FALSE) {
-		//Open a new marketIfTouched order
+            //Open a new marketIfTouched order
 			return self::order_open($side, $units, $pair, 'marketIfTouched', $price, $expiry, $rest);
 		}
 		
@@ -891,23 +935,23 @@ if (defined('TAVURTH_OANDAWRAP') === FALSE) {
 		//////////////////////////////////////////////////////////////////////////////////
 		
 		public static function buy_market($units, $pair, $rest = FALSE) {
-		//Buy @ market
+            //Buy @ market
 			return self::market('buy', $units, $pair, $rest);
 		}
 		public static function buy_limit($units, $pair, $price, $expiry, $rest = FALSE) {
-		//Buy limit with expiry
+            //Buy limit with expiry
 			return self::limit('buy', $units, $pair, $price, $expiry, $rest);
 		}
 		public static function buy_stop($units, $pair, $price, $expiry, $rest = FALSE) {
-		//Buy stop with expiry
+            //Buy stop with expiry
 			return self::stop('buy', $units, $pair, $price, $expiry, $rest);
 		}
 		public static function buy_mit($units, $pair, $price, $expiry, $rest = FALSE) {
-		//Buy marketIfTouched with expiry
+            //Buy marketIfTouched with expiry
 			return self::mit('buy', $units, $pair, $price, $expiry, $rest);
 		}
 		public static function buy_bullish($pair, $risk, $stop, $leverage=50) {
-		//Macro: Buy $pair and limit size to equal %NAV loss over $stop pips. Then set stopLoss
+            //Macro: Buy $pair and limit size to equal %NAV loss over $stop pips. Then set stopLoss
 			
 			//Retrieve current price
 			if (! self::valid($price = self::price($pair)))
@@ -931,23 +975,23 @@ if (defined('TAVURTH_OANDAWRAP') === FALSE) {
 		//////////////////////////////////////////////////////////////////////////////////
 		
 		public static function sell_market($units, $pair, $rest = FALSE) {
-		//Sell @ market
+            //Sell @ market
 			return self::market('sell', $units, $pair, $rest);
 		}
 		public static function sell_limit($units, $pair, $price, $expiry, $rest = FALSE) {
-		//Sell limit with expiry
+            //Sell limit with expiry
 			return self::limit('sell', $units, $pair, $price, $expiry, $rest);
 		}
 		public static function sell_stop($units, $pair, $price, $expiry, $rest = FALSE) {
-		//Sell stop with expiry
+            //Sell stop with expiry
 			return self::stop('sell', $units, $pair, $price, $expiry, $rest);
 		}
 		public static function sell_mit($units, $pair, $price, $expiry, $rest = FALSE) {
-		//Sell marketIfTouched with expiry
+            //Sell marketIfTouched with expiry
 			return self::mit('sell', $units, $pair, $price, $expiry, $rest);
 		}
 		public static function sell_bearish($pair, $risk, $stop, $leverage=50) {
-		//Macro: Sell $pair and limit size to equal %NAV loss over $stop pips. Then set stopLoss
+            //Macro: Sell $pair and limit size to equal %NAV loss over $stop pips. Then set stopLoss
 
 			//Retrieve current price
 			if (! self::valid($price = self::price($pair)))
@@ -971,36 +1015,36 @@ if (defined('TAVURTH_OANDAWRAP') === FALSE) {
 		//////////////////////////////////////////////////////////////////////////////////
 		
 		protected static function candle_time_to_seconds($candle) {
-		//Convert the timing of $candle from microseconds to seconds
+            //Convert the timing of $candle from microseconds to seconds
 			$candle->time = self::time_seconds($candle->time);
 			return $candle;
 		}
 		
 		protected static function candles_times_to_seconds($candles) {
-		//Convert the times of $candles from microseconds to seconds
+            //Convert the times of $candles from microseconds to seconds
 			if (self::valid($candles))
 				$candles->candles = array_map('self::candle_time_to_seconds', $candles->candles);
 			return $candles;
 		}
 		
 		public static function price($pair) {
-		//Wrapper, return the current price of '$pair'
+            //Wrapper, return the current price of '$pair'
 			return (self::valid($prices = self::prices(array($pair)))) ? $prices->prices[0] : $prices;
 		}
 		
 		public static function prices($pairs) {
-		//Return a jsonObject {prices} for {$pairs}
+            //Return a jsonObject {prices} for {$pairs}
 			return self::get('prices', array('instruments' => implode(',', $pairs)));
 		}
 		
 		public static function price_time($pair, $date) {
-		//Wrapper, return the price of '$pair' at $date which is a string such as "20:15 5th november 2012"
+            //Wrapper, return the price of '$pair' at $date which is a string such as "20:15 5th november 2012"
 			return (self::valid($candles = self::candles_time($pair, 'S5', ($time=strtotime($date)), $time+10))) ?
-				$candles->candles[0] : $candles;
+                                         $candles->candles[0] : $candles;
 		}
 
 		public static function candles($pair, $gran, $rest = null) {
-		//Return a number of candles for '$pair'
+            //Return a number of candles for '$pair'
 			
 			//Defaults for $rest
 			$rest = is_array($rest) ? $rest : array('count' => 1);
@@ -1011,10 +1055,10 @@ if (defined('TAVURTH_OANDAWRAP') === FALSE) {
 			
 			//Setup stamdard options
 			$candleOptions = array( 
-					'candleFormat'  => 'midpoint',
-					'instrument'    => $pair, 
-					'granularity'   => strtoupper($gran)
-				);
+                'candleFormat'  => 'midpoint',
+                'instrument'    => $pair, 
+                'granularity'   => strtoupper($gran)
+            );
 			
 			//Check for rest processing
 			if (is_array($rest))
@@ -1023,17 +1067,17 @@ if (defined('TAVURTH_OANDAWRAP') === FALSE) {
 
 			//Check the object
 			return (self::valid($candles = self::get('candles', $candleOptions))) ? 
-				self::candles_times_to_seconds($candles) : $candles;
+                                         self::candles_times_to_seconds($candles) : $candles;
 		}
 		
 		public static function candles_time($pair, $gran, $start, $end) {
-		//Return candles for '$pair' between $start and $end
+            //Return candles for '$pair' between $start and $end
 			return self::candles($pair, $gran, array('start' => $start, 'end' => $end));
 		}
 		
 		public static function candles_count($pair, $gran, $count) {
-		//Return $count of the previous candles for '$pair'
+            //Return $count of the previous candles for '$pair'
 			return self::candles($pair, $gran, array('count' => $count));
 		}
-	}
+    }
 }
