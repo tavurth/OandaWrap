@@ -301,14 +301,14 @@ if (defined('TAVURTH_OANDAWRAP') === FALSE) {
             //	$callback = function ($jsonObject) { /* { YOUR CODE } */;  }
             //
             // Quotes Example:
-            //	OandaWrap::stream(function (event) { OandaWrap::format(event); }, array('EUR_USD'), FALSE);
+            //	OandaWrap::stream(function ($event) { var_dump($event); }, array('EUR_USD'), FALSE);
             //
             // Events Example:
-            //	OandaWrap::stream(function (event) { OandaWrap::format(event); }, FALSE, array('12345'));
+            //	OandaWrap::stream(function ($event) { var_dump($event); }, FALSE, array('12345'));
             //
             //
             // Events Example:
-            //	OandaWrap::stream(function (event) { OandaWrap::format(event); }, array('EUR_USD'), array('12345'));
+            //	OandaWrap::stream(function ($event) { var_dump($event); }, array('EUR_USD'), array('12345'));
             //Notes:
             //	Returning any value from the callback function (true or false) will exit the stream
 

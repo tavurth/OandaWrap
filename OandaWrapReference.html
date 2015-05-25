@@ -121,11 +121,11 @@ limitations under the License.</pre><br><pre>
             Open a stream to Oanda 
             	$callback = function ($jsonObject) { /* { YOUR CODE } */;  }
              Quotes Example:
-            	OandaWrap::stream(function (event) { OandaWrap::format(event); }, array('EUR_USD'), FALSE);
+            	OandaWrap::stream(function ($event) { var_dump($event); }, array('EUR_USD'), FALSE);
              Events Example:
-            	OandaWrap::stream(function (event) { OandaWrap::format(event); }, FALSE, array('12345'));
+            	OandaWrap::stream(function ($event) { var_dump($event); }, FALSE, array('12345'));
              Events Example:
-            	OandaWrap::stream(function (event) { OandaWrap::format(event); }, array('EUR_USD'), array('12345'));
+            	OandaWrap::stream(function ($event) { var_dump($event); }, array('EUR_USD'), array('12345'));
             Notes:
             	Returning any value from the callback function (true or false) will exit the stream</pre></div><div id="account">
 <hr><pre><b>Function:<i>account</i></b>(accountId)
