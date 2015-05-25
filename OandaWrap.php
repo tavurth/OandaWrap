@@ -236,7 +236,7 @@ if (defined('TAVURTH_OANDAWRAP') === FALSE) {
             //Callback that then calls your function to process streaming data
 			
 			// Decode the data and check
-            if (($decoded = json_decode($str)) != NULL)
+            if (($decoded = @json_decode($str)) != NULL)
                 // Call the users callback
                 if (call_user_func(self::$callback, $decoded) != NULL)
                     return FALSE; // Quit the stream when user returns value
