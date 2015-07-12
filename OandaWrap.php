@@ -234,7 +234,7 @@ if (defined('TAVURTH_OANDAWRAP') === FALSE) {
 		}
 		private static function stream_callback($curl, $str) {
             //Callback that then calls your function to process streaming data
-			
+
 			// Decode the data and check
             if (($decoded = @json_decode($str)) != NULL)
                 // Call the users callback
