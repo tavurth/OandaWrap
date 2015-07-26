@@ -576,7 +576,10 @@ if (defined('TAVURTH_OANDAWRAP') === FALSE) {
 			//Check for valid account
 			if (! self::valid(self::$account))
 				return self::$account;
-			
+
+            if (self::$account->balance == 0)
+                return 0.00;
+            
 			//Percentage
 			if ($dollarValue === FALSE)
 				return round((self::$account->unrealizedPl / self::$account->balance) * 100, 2);
