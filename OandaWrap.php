@@ -553,7 +553,7 @@ if (defined('TAVURTH_OANDAWRAP') === FALSE) {
 				return $baseSize;
 								
 			//Calculate and return the leveraged size
-			return floor($baseSize * $leverage);
+			return ceil($baseSize * $leverage);
 		}
 		
 		public static function nav_size_percent_per_pip($pair, $riskPerPip, $leverage = 50) {
