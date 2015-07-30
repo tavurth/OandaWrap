@@ -430,7 +430,7 @@ if (defined('TAVURTH_OANDAWRAP') === FALSE) {
 				return $home . '_' . $away;
 			if (self::instrument($away . '_' . $home))
 				return $away . '_' . $home;
-			return FALSE;
+			return 'Invalid_instrument__' . $home . '/' . $away;
 		}
 		
 		public static function instrument_split($pair) {
