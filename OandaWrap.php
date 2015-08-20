@@ -969,7 +969,7 @@ if (defined('TAVURTH_OANDAWRAP') === FALSE) {
 			if (! self::valid($size = self::nav_size_percent_per_pip($pair, ($risk/$stop))))
 				return $size;
 			
-			if (! self::valid($newTrade = self::buy_market($size, $pair)))
+			if (! self::valid($newTrade = self::buy_market($size, $pair)) && isset($newTrade->tradeId))
 				return $newTrade;
 			
 			//Set the stoploss
@@ -1009,7 +1009,7 @@ if (defined('TAVURTH_OANDAWRAP') === FALSE) {
 			if (! self::valid($size = self::nav_size_percent_per_pip($pair, ($risk/$stop))))
 				return $size;
 			
-			if (! self::valid($newTrade = self::sell_market($size, $pair)))
+			if (! self::valid($newTrade = self::sell_market($size, $pair)) && isset($newTrade->tradeId))
 				return $newTrade;
 			
 			//Set the stoploss
