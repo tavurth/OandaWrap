@@ -750,7 +750,7 @@ if (defined('TAVURTH_OANDAWRAP') === FALSE) {
 			if (is_array($rest))
 				foreach ($rest as $key => $value)
 					$orderOptions[$key] = $value;
-			
+
 			return self::post(self::order_index(), $orderOptions);
 		}
 		public static function order_close($orderId) {
