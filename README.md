@@ -3,6 +3,15 @@ OandaWrap
 
 Php interface for Oanda API.
 
+A note
+=========
+I wrote this code a long time ago. If you're seriously considering writing an Oanda PHP interface, I'd recommend using NodeJs or Python instead.
+
+This should be fully functional, but for the v1 of Oandas API, v2 is not supported.
+
+Documentation
+=========
+
 Please see the link at the top of the page for the downloadable HTML manual.
 
 Examples can be found in the example folder.
